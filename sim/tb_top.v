@@ -20,7 +20,7 @@ module tb_top;
     );
 
     initial begin
-        $readmemh("firmware.hex", u_dut.u_sram.mem);
+        $readmemh("firmware.hex", u_dut.u_sram.u_sram.mem);
     end
 
     // DONE_ADDR = 0x08000B28, word addr = 0xB28 >> 2 = 0x2CA
@@ -49,7 +49,7 @@ module tb_top;
             end
             begin : wait_done
                 @(posedge clk);
-                while (u_dut.u_sram.mem[DONE_WORD_ADDR][7:0] !== 8'hFF)
+                while (u_dut.u_sram.u_sram.mem[DONE_WORD_ADDR][7:0] !== 8'hFF)
                     @(posedge clk);
                 disable watchdog;
             end
@@ -57,14 +57,14 @@ module tb_top;
 
         #20; // let last write complete
         $display("--- Firmware completed at cycle %0d ---", cycle_count);
-        $display("  DONE   = 0x%02x", u_dut.u_sram.mem[DONE_WORD_ADDR][7:0]);
-        $display("  RESULT = 0x%02x", u_dut.u_sram.mem[RESULT_WORD_ADDR][7:0]);
+        $display("  DONE   = 0x%02x", u_dut.u_sram.u_sram.mem[DONE_WORD_ADDR][7:0]);
+        $display("  RESULT = 0x%02x", u_dut.u_sram.u_sram.mem[RESULT_WORD_ADDR][7:0]);
 
-        if (u_dut.u_sram.mem[RESULT_WORD_ADDR][7:0] == 8'h01)
+        if (u_dut.u_sram.u_sram.mem[RESULT_WORD_ADDR][7:0] == 8'h01)
             $display("*** PASS ***");
         else
             $display("*** FAIL (expected 0x01, got 0x%02x) ***",
-                u_dut.u_sram.mem[RESULT_WORD_ADDR][7:0]);
+                u_dut.u_sram.u_sram.mem[RESULT_WORD_ADDR][7:0]);
 
         #100;
         $finish;

@@ -1,21 +1,13 @@
 // ============================================================
 // rom_ctrl.v — 16KB ROM controller
 //
-// ROM structure: 256 WL × 16 column groups × 2 bits/cell = 32 bits/read
+// Bus interface logic + ROM wrapper instantiation.
+// Address: 0x20000000 - 0x20003FFF (16KB)
+// Read-only (writes ignored).
 //
-// Address mapping (byte address offset from 0x20000000):
-//   offset[9:2]   → WL address (8 bits, 256 word lines)
-//   offset[13:10]  → column mux address (4 bits, 16 groups)
-//   offset[1:0]   → byte lane (for lb)
-//
-// Data pattern:
-//   pattern = (wl_addr + col_mux_addr) % 4
-//   0 → 0x00000000
-//   1 → 0x55555555
-//   2 → 0xAAAAAAAA
-//   3 → 0xFFFFFFFF
-//
-// Single-cycle read. Read-only (writes ignored).
+// Address mapping from bus byte address:
+//   byte_addr[9:2]   → WL address (8 bits)  → rom_addr[7:0]
+//   byte_addr[13:10]  → column mux (4 bits)  → rom_addr[11:8]
 // ============================================================
 
 module rom_ctrl (
@@ -26,40 +18,29 @@ module rom_ctrl (
     output wire        req_ready,
     input  wire [31:0] req_addr,
     output reg         resp_valid,
-    output reg  [31:0] resp_rdata
+    output wire [31:0] resp_rdata
 );
 
-    // Address decode
-    wire [7:0] wl_addr  = req_addr[9:2];    // 256 word lines
-    wire [3:0] col_addr = req_addr[13:10];   // 16 column mux groups
-
-    // Pattern computation
-    wire [1:0] pattern = (wl_addr[1:0] + col_addr[1:0]);
-
-    // Pattern to data mapping
-    reg [31:0] rom_data;
-    always @(*) begin
-        case (pattern)
-            2'd0: rom_data = 32'h00000000;
-            2'd1: rom_data = 32'h55555555;
-            2'd2: rom_data = 32'hAAAAAAAA;
-            2'd3: rom_data = 32'hFFFFFFFF;
-        endcase
-    end
+    // Address mapping: bus byte addr → ROM word addr
+    // WL = byte_addr[9:2], COL = byte_addr[13:10]
+    wire [11:0] rom_addr = {req_addr[13:10], req_addr[9:2]};
 
     // Always ready
     assign req_ready = 1'b1;
 
+    // ROM instance
+    rom_16kb u_rom (
+        .clk   (clk),
+        .addr  (rom_addr),
+        .rdata (resp_rdata)
+    );
+
+    // Response valid — one cycle after request
     always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+        if (!rst_n)
             resp_valid <= 1'b0;
-            resp_rdata <= 32'h0;
-        end else if (req_valid && req_ready) begin
-            resp_valid <= 1'b1;
-            resp_rdata <= rom_data;
-        end else begin
-            resp_valid <= 1'b0;
-        end
+        else
+            resp_valid <= req_valid && req_ready;
     end
 
 endmodule

@@ -1,17 +1,19 @@
 // ============================================================
 // sram_ctrl.v — SRAM Controller with macro timing
 //
-// Posedge clk: bus handshake, stable SRAM signals, latch DOUT
-// Negedge clk: transition PRECHG/DEN/EN high (10ns after posedge)
+// Timing (one clk_50 period = 20ns):
+//   posedge clk_50 (0ns):    ADDR, DIN, WEN stable
+//                             PRECHG=LOW, DEN=LOW, EN=LOW, REN=LOW
+//   negedge clk_50 (10ns):   PRECHG=HIGH, DEN=HIGH, EN=HIGH
+//   negedge clk_200 (12.5ns): REN=HIGH (2.5ns delay after DEN)
+//   posedge clk_50 (20ns):   DOUT valid, latch into resp_rdata
 //
-// Cycle 1 (IDLE→ACCESS): latch addr from bus, set stable pins
-// Cycle 1 (negedge):     PRECHG↑, DEN↑, EN↑ — SRAM activates
-// Cycle 2 (ACCESS→RESPOND): DOUT valid, latch it, assert resp_valid
-// Cycle 3 (RESPOND→IDLE): deassert resp_valid, reassert req_ready
+// Only supports word-aligned 32-bit writes (no SB/SH).
 // ============================================================
 
 module sram_ctrl (
-    input  wire        clk,
+    input  wire        clk,         // clk_50
+    input  wire        clk_fast,    // clk_200 (for REN timing)
     input  wire        rst_n,
 
     // Bus interface
@@ -46,7 +48,7 @@ module sram_ctrl (
     reg [1:0] state;
 
     // --------------------------------------------------------
-    // Posedge domain: bus + stable SRAM pins + latch DOUT
+    // Posedge clk_50: bus handshake + stable SRAM pins + latch DOUT
     // --------------------------------------------------------
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -58,21 +60,17 @@ module sram_ctrl (
             sram_col_addr <= 3'h0;
             sram_din      <= 32'h0;
             sram_wen      <= 1'b0;
-            sram_ren      <= 1'b0;
         end else begin
             case (state)
                 IDLE: begin
                     resp_valid <= 1'b0;
                     sram_wen   <= 1'b0;
-                    sram_ren   <= 1'b0;
 
                     if (req_valid && req_ready) begin
-                        // Latch address and data
                         sram_addr     <= row_addr;
                         sram_col_addr <= col_addr;
                         sram_din      <= req_wdata;
                         sram_wen      <= req_wen;
-                        sram_ren      <= ~req_wen;
 
                         req_ready <= 1'b0;
                         state     <= ACCESS;
@@ -80,16 +78,10 @@ module sram_ctrl (
                 end
 
                 ACCESS: begin
-                    // At this posedge, the negedge already fired
-                    // (DEN=1, PRECHG=1, EN=1) so DOUT is valid now
                     resp_rdata <= sram_dout;
                     resp_valid <= 1'b1;
-
-                    // Deactivate stable pins
-                    sram_wen <= 1'b0;
-                    sram_ren <= 1'b0;
-
-                    state <= RESPOND;
+                    sram_wen   <= 1'b0;
+                    state      <= RESPOND;
                 end
 
                 RESPOND: begin
@@ -104,9 +96,9 @@ module sram_ctrl (
     end
 
     // --------------------------------------------------------
-    // Negedge domain: transition signals
-    // When state==ACCESS at negedge, assert DEN/PRECHG/EN
-    // Otherwise keep them deasserted (precharge active)
+    // Negedge clk_50: PRECHG, DEN, EN transitions
+    //   ACCESS: PRECHG=HIGH, DEN=HIGH, EN=HIGH (precharge done)
+    //   else:   PRECHG=LOW, DEN=LOW, EN=LOW (precharging)
     // --------------------------------------------------------
     always @(negedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -122,6 +114,23 @@ module sram_ctrl (
                 sram_prechg <= 1'b0;
                 sram_den    <= 1'b0;
                 sram_en     <= 1'b0;
+            end
+        end
+    end
+
+    // --------------------------------------------------------
+    // Negedge clk_200: REN transition (2.5ns after DEN)
+    //   Assert REN when DEN is already high (set by negedge clk_50)
+    //   negedge clk_200 at 12.5ns is 2.5ns after negedge clk_50 at 10ns
+    // --------------------------------------------------------
+    always @(negedge clk_fast or negedge rst_n) begin
+        if (!rst_n) begin
+            sram_ren <= 1'b0;
+        end else begin
+            if (state == ACCESS && sram_den) begin
+                sram_ren <= 1'b1;
+            end else begin
+                sram_ren <= 1'b0;
             end
         end
     end

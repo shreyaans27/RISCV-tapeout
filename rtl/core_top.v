@@ -199,6 +199,7 @@ module core_top (
     // --------------------------------------------------------
     sram_ctrl u_sram (
         .clk            (clk_50),
+        .clk_fast       (pad_clk),
         .rst_n          (rst_n),
         // Bus side
         .req_valid      (sram_bus_req_valid),

@@ -23,10 +23,12 @@ module tb_top;
     reg  [31:0] sram_dout;
 
     // ROM macro signals
-    wire        rom_en;
     wire [7:0]  rom_wl_addr;
-    wire [3:0]  rom_col_addr;
-    reg  [31:0] rom_rdata;
+    wire [3:0]  rom_col_in;
+    wire        rom_preen;
+    wire        rom_wlen;
+    wire        rom_saen;
+    reg  [31:0] rom_dout;
 
     // DUT
     core_top u_dut (
@@ -45,29 +47,27 @@ module tb_top;
         .sram_en        (sram_en),
         .sram_din       (sram_din),
         .sram_dout      (sram_dout),
-        .rom_en         (rom_en),
         .rom_wl_addr    (rom_wl_addr),
-        .rom_col_addr   (rom_col_addr),
-        .rom_rdata      (rom_rdata),
+        .rom_col_in     (rom_col_in),
+        .rom_preen      (rom_preen),
+        .rom_wlen       (rom_wlen),
+        .rom_saen       (rom_saen),
+        .rom_dout       (rom_dout),
         .debug_pc       (debug_pc),
         .debug_resp_valid(debug_resp_valid)
     );
 
     // --------------------------------------------------------
     // Behavioral SRAM model
-    // 256 rows x 8 columns = 2048 words
     // --------------------------------------------------------
     reg [31:0] sram_mem [0:2047];
     wire [10:0] sram_word_addr = {sram_addr, sram_col_addr};
 
-    // Write: when DEN goes high with WEN=1 and PRECHG=1
     always @(posedge sram_den) begin
-        if (sram_wen && sram_prechg) begin
+        if (sram_wen && sram_prechg)
             sram_mem[sram_word_addr] <= sram_din;
-        end
     end
 
-    // Read: combinational, valid when DEN=1 and REN=1 and EN=1
     always @(*) begin
         if (sram_den && sram_ren && sram_en && sram_prechg)
             sram_dout = sram_mem[sram_word_addr];
@@ -77,19 +77,22 @@ module tb_top;
 
     // --------------------------------------------------------
     // Behavioral ROM model
+    // Data pattern: (wl_addr[1:0] + col_in[1:0]) % 4
+    //   0 → 0x00000000, 1 → 0x55555555
+    //   2 → 0xAAAAAAAA, 3 → 0xFFFFFFFF
     // --------------------------------------------------------
-    wire [1:0] rom_pattern = rom_wl_addr[1:0] + rom_col_addr[1:0];
+    wire [1:0] rom_pattern = rom_wl_addr[1:0] + rom_col_in[1:0];
 
     always @(*) begin
-        if (rom_en) begin
+        if (rom_saen && rom_wlen && !rom_preen) begin
             case (rom_pattern)
-                2'd0: rom_rdata = 32'h00000000;
-                2'd1: rom_rdata = 32'h55555555;
-                2'd2: rom_rdata = 32'hAAAAAAAA;
-                2'd3: rom_rdata = 32'hFFFFFFFF;
+                2'd0: rom_dout = 32'h00000000;
+                2'd1: rom_dout = 32'h55555555;
+                2'd2: rom_dout = 32'hAAAAAAAA;
+                2'd3: rom_dout = 32'hFFFFFFFF;
             endcase
         end else begin
-            rom_rdata = 32'h0;
+            rom_dout = 32'h0;
         end
     end
 
@@ -100,7 +103,6 @@ module tb_top;
         $readmemh("firmware.hex", sram_mem);
     end
 
-    // Monitor
     localparam DONE_WORD_ADDR = 11'h2CA;
     localparam RESULT_WORD_ADDR = 11'h2C8;
 

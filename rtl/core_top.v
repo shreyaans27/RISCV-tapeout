@@ -34,11 +34,13 @@ module core_top (
     output wire [31:0] sram_din,        // data in
     input  wire [31:0] sram_dout,       // data out
 
-    // ROM macro control signals (directly to pads)
-    output wire        rom_en,
+    // ROM macro pins (directly to pads)
     output wire [7:0]  rom_wl_addr,
-    output wire [3:0]  rom_col_addr,
-    input  wire [31:0] rom_rdata,
+    output wire [3:0]  rom_col_in,
+    output wire        rom_preen,
+    output wire        rom_wlen,
+    output wire        rom_saen,
+    input  wire [31:0] rom_dout,
 
     // Debug outputs (anchor pipeline for synthesis)
     output wire [31:0] debug_pc,
@@ -232,11 +234,13 @@ module core_top (
         .req_addr       (rom_bus_req_addr),
         .resp_valid     (rom_bus_resp_valid),
         .resp_rdata     (rom_bus_resp_rdata),
-        // ROM macro pins (directly to pads)
-        .rom_en         (rom_en),
+        // ROM macro pins
         .rom_wl_addr    (rom_wl_addr),
-        .rom_col_addr   (rom_col_addr),
-        .rom_rdata      (rom_rdata)
+        .rom_col_in     (rom_col_in),
+        .rom_preen      (rom_preen),
+        .rom_wlen       (rom_wlen),
+        .rom_saen       (rom_saen),
+        .rom_dout       (rom_dout)
     );
 
 endmodule

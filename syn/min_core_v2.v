@@ -370,186 +370,294 @@ module bus_xbar (
 endmodule
 
 // ============================================================
-// sram_8kb.v — 8KB SRAM wrapper
+// clk_div.v — 3-stage divide-by-2 frequency divider
 //
-// Behavioral model for simulation.
-// For tapeout: replace internals with SRAM macro instance.
-//
-// Single-port SRAM interface:
-//   - 2048 words × 32 bits = 8KB
-//   - Single-cycle read/write
-//   - Byte-level write enable (active high)
+// Input:  clk_200  (200 MHz from pad)
+// Output: clk_100  (100 MHz — for memory controller timing)
+//         clk_50   (50 MHz  — core clock)
 // ============================================================
 
-module sram_8kb (
-    input  wire        clk,
-    input  wire        we,         // write enable
-    input  wire [10:0] addr,       // 11-bit word address (2048 entries)
-    input  wire [31:0] wdata,      // write data
-    input  wire [3:0]  wmask,      // byte write mask (active high)
-    output reg  [31:0] rdata       // read data (1-cycle latency)
+module clk_div (
+    input  wire clk_200,
+    input  wire rst_n,
+    output wire clk_100,
+    output wire clk_50
 );
 
-    // Behavioral memory array
-    reg [31:0] mem [0:2047];
-
-    always @(posedge clk) begin
-        if (we) begin
-            if (wmask[0]) mem[addr][ 7: 0] <= wdata[ 7: 0];
-            if (wmask[1]) mem[addr][15: 8] <= wdata[15: 8];
-            if (wmask[2]) mem[addr][23:16] <= wdata[23:16];
-            if (wmask[3]) mem[addr][31:24] <= wdata[31:24];
-        end
-        rdata <= mem[addr]; // synchronous read
+    // Stage 1: 200 → 100 MHz
+    reg div2_reg;
+    always @(posedge clk_200 or negedge rst_n) begin
+        if (!rst_n)
+            div2_reg <= 1'b0;
+        else
+            div2_reg <= ~div2_reg;
     end
+    assign clk_100 = div2_reg;
+
+    // Stage 2: 100 → 50 MHz
+    reg div4_reg;
+    always @(posedge clk_100 or negedge rst_n) begin
+        if (!rst_n)
+            div4_reg <= 1'b0;
+        else
+            div4_reg <= ~div4_reg;
+    end
+    assign clk_50 = div4_reg;
 
 endmodule
 
 // ============================================================
-// sram_ctrl.v — 8KB SRAM controller
+// sram_ctrl.v — SRAM Controller with macro timing
 //
-// Bus interface logic + SRAM wrapper instantiation.
-// Address: 0x08000000 - 0x08001FFF (8KB)
-// Supports byte-masked writes.
+// Posedge clk: bus handshake, stable SRAM signals, latch DOUT
+// Negedge clk: transition PRECHG/DEN/EN high (10ns after posedge)
+//
+// Cycle 1 (IDLE→ACCESS): latch addr from bus, set stable pins
+// Cycle 1 (negedge):     PRECHG↑, DEN↑, EN↑ — SRAM activates
+// Cycle 2 (ACCESS→RESPOND): DOUT valid, latch it, assert resp_valid
+// Cycle 3 (RESPOND→IDLE): deassert resp_valid, reassert req_ready
 // ============================================================
 
 module sram_ctrl (
     input  wire        clk,
     input  wire        rst_n,
 
+    // Bus interface
     input  wire        req_valid,
-    output wire        req_ready,
+    output reg         req_ready,
     input  wire [31:0] req_addr,
     input  wire [31:0] req_wdata,
     input  wire [3:0]  req_wmask,
     input  wire        req_wen,
     output reg         resp_valid,
-    output wire [31:0] resp_rdata
+    output reg  [31:0] resp_rdata,
+
+    // SRAM macro pins
+    output reg         sram_den,
+    output reg  [7:0]  sram_addr,
+    output reg  [2:0]  sram_col_addr,
+    output reg         sram_prechg,
+    output reg         sram_ren,
+    output reg         sram_wen,
+    output reg         sram_en,
+    output reg  [31:0] sram_din,
+    input  wire [31:0] sram_dout
 );
 
-    // Word address from byte address
-    wire [10:0] word_addr = req_addr[12:2];
+    wire [7:0] row_addr = req_addr[12:5];
+    wire [2:0] col_addr = req_addr[4:2];
 
-    // Always ready to accept
-    assign req_ready = 1'b1;
+    localparam IDLE    = 2'd0;
+    localparam ACCESS  = 2'd1;
+    localparam RESPOND = 2'd2;
 
-    // SRAM write enable: valid request + write
-    wire sram_we = req_valid && req_ready && req_wen;
+    reg [1:0] state;
 
-    // SRAM instance
-    sram_8kb u_sram (
-        .clk   (clk),
-        .we    (sram_we),
-        .addr  (word_addr),
-        .wdata (req_wdata),
-        .wmask (req_wmask),
-        .rdata (resp_rdata)
-    );
-
-    // Response valid — one cycle after request
+    // --------------------------------------------------------
+    // Posedge domain: bus + stable SRAM pins + latch DOUT
+    // --------------------------------------------------------
     always @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            resp_valid <= 1'b0;
-        else
-            resp_valid <= req_valid && req_ready;
+        if (!rst_n) begin
+            state         <= IDLE;
+            req_ready     <= 1'b1;
+            resp_valid    <= 1'b0;
+            resp_rdata    <= 32'h0;
+            sram_addr     <= 8'h0;
+            sram_col_addr <= 3'h0;
+            sram_din      <= 32'h0;
+            sram_wen      <= 1'b0;
+            sram_ren      <= 1'b0;
+        end else begin
+            case (state)
+                IDLE: begin
+                    resp_valid <= 1'b0;
+                    sram_wen   <= 1'b0;
+                    sram_ren   <= 1'b0;
+
+                    if (req_valid && req_ready) begin
+                        // Latch address and data
+                        sram_addr     <= row_addr;
+                        sram_col_addr <= col_addr;
+                        sram_din      <= req_wdata;
+                        sram_wen      <= req_wen;
+                        sram_ren      <= ~req_wen;
+
+                        req_ready <= 1'b0;
+                        state     <= ACCESS;
+                    end
+                end
+
+                ACCESS: begin
+                    // At this posedge, the negedge already fired
+                    // (DEN=1, PRECHG=1, EN=1) so DOUT is valid now
+                    resp_rdata <= sram_dout;
+                    resp_valid <= 1'b1;
+
+                    // Deactivate stable pins
+                    sram_wen <= 1'b0;
+                    sram_ren <= 1'b0;
+
+                    state <= RESPOND;
+                end
+
+                RESPOND: begin
+                    resp_valid <= 1'b0;
+                    req_ready  <= 1'b1;
+                    state      <= IDLE;
+                end
+
+                default: state <= IDLE;
+            endcase
+        end
+    end
+
+    // --------------------------------------------------------
+    // Negedge domain: transition signals
+    // When state==ACCESS at negedge, assert DEN/PRECHG/EN
+    // Otherwise keep them deasserted (precharge active)
+    // --------------------------------------------------------
+    always @(negedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            sram_prechg <= 1'b0;
+            sram_den    <= 1'b0;
+            sram_en     <= 1'b0;
+        end else begin
+            if (state == ACCESS) begin
+                sram_prechg <= 1'b1;
+                sram_den    <= 1'b1;
+                sram_en     <= 1'b1;
+            end else begin
+                sram_prechg <= 1'b0;
+                sram_den    <= 1'b0;
+                sram_en     <= 1'b0;
+            end
+        end
     end
 
 endmodule
 
 // ============================================================
-// rom_16kb.v — 16KB ROM wrapper
+// rom_ctrl.v — ROM Controller with macro timing
 //
-// Behavioral model for simulation.
-// For tapeout: replace internals with ROM macro instance.
+// ROM Macro Pins:
+//   rom_wl_addr<7:0>  — word line address
+//   rom_col_in<3:0>   — column mux input
+//   rom_preen         — precharge enable (active high = precharging)
+//   rom_wlen          — word line enable (active high)
+//   rom_saen          — sense amp enable (active high)
+//   rom_dout<31:0>    — data out
 //
-// ROM structure: 256 WL × 16 col_mux × 32 bits = 16KB
-// Data pattern: (wl_addr[1:0] + col_addr[1:0]) % 4
-//   0 → 0x00000000
-//   1 → 0x55555555
-//   2 → 0xAAAAAAAA
-//   3 → 0xFFFFFFFF
-//
-// Single-port read-only interface:
-//   - 4096 words × 32 bits = 16KB
-//   - addr[7:0]  = WL address (256 word lines)
-//   - addr[11:8] = column mux address (16 groups)
-//   - Single-cycle read
-// ============================================================
-
-module rom_16kb (
-    input  wire        clk,
-    input  wire [11:0] addr,       // 12-bit word address (4096 entries)
-    output reg  [31:0] rdata       // read data (1-cycle latency)
-);
-
-    // Address decode
-    wire [7:0] wl_addr  = addr[7:0];    // word line
-    wire [3:0] col_addr = addr[11:8];   // column mux
-
-    // Pattern computation
-    wire [1:0] pattern = wl_addr[1:0] + col_addr[1:0];
-
-    // Combinational pattern lookup
-    reg [31:0] rom_data;
-    always @(*) begin
-        case (pattern)
-            2'd0: rom_data = 32'h00000000;
-            2'd1: rom_data = 32'h55555555;
-            2'd2: rom_data = 32'hAAAAAAAA;
-            2'd3: rom_data = 32'hFFFFFFFF;
-        endcase
-    end
-
-    // Synchronous read output
-    always @(posedge clk) begin
-        rdata <= rom_data;
-    end
-
-endmodule
-
-// ============================================================
-// rom_ctrl.v — 16KB ROM controller
-//
-// Bus interface logic + ROM wrapper instantiation.
-// Address: 0x20000000 - 0x20003FFF (16KB)
-// Read-only (writes ignored).
-//
-// Address mapping from bus byte address:
-//   byte_addr[9:2]   → WL address (8 bits)  → rom_addr[7:0]
-//   byte_addr[13:10]  → column mux (4 bits)  → rom_addr[11:8]
+// Timing (one clk_50 period = 20ns):
+//   posedge clk_50 (0ns):   ADDR/COL stable, PREEN=HIGH, WLEN=LOW, SAEN=LOW
+//   negedge clk_50 (10ns):  PREEN=LOW, WLEN=HIGH
+//   posedge clk_200 (15ns): SAEN=HIGH (5ns after WLEN)
+//   next posedge clk_50 (20ns): DOUT valid, latch
 // ============================================================
 
 module rom_ctrl (
-    input  wire        clk,
+    input  wire        clk,         // clk_50
+    input  wire        clk_fast,    // clk_200 for SAEN timing
     input  wire        rst_n,
 
+    // Bus interface
     input  wire        req_valid,
-    output wire        req_ready,
+    output reg         req_ready,
     input  wire [31:0] req_addr,
     output reg         resp_valid,
-    output wire [31:0] resp_rdata
+    output reg  [31:0] resp_rdata,
+
+    // ROM macro pins
+    output reg  [7:0]  rom_wl_addr,
+    output reg  [3:0]  rom_col_in,
+    output reg         rom_preen,
+    output reg         rom_wlen,
+    output reg         rom_saen,
+    input  wire [31:0] rom_dout
 );
 
-    // Address mapping: bus byte addr → ROM word addr
-    // WL = byte_addr[9:2], COL = byte_addr[13:10]
-    wire [11:0] rom_addr = {req_addr[13:10], req_addr[9:2]};
+    wire [7:0] wl_addr  = req_addr[9:2];
+    wire [3:0] col_addr = req_addr[13:10];
 
-    // Always ready
-    assign req_ready = 1'b1;
+    localparam IDLE    = 2'd0;
+    localparam ACCESS  = 2'd1;
+    localparam RESPOND = 2'd2;
 
-    // ROM instance
-    rom_16kb u_rom (
-        .clk   (clk),
-        .addr  (rom_addr),
-        .rdata (resp_rdata)
-    );
+    reg [1:0] state;
 
-    // Response valid — one cycle after request
+    // --------------------------------------------------------
+    // Posedge clk_50: bus handshake + stable pins + latch DOUT
+    // --------------------------------------------------------
     always @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            resp_valid <= 1'b0;
-        else
-            resp_valid <= req_valid && req_ready;
+        if (!rst_n) begin
+            state        <= IDLE;
+            req_ready    <= 1'b1;
+            resp_valid   <= 1'b0;
+            resp_rdata   <= 32'h0;
+            rom_wl_addr  <= 8'h0;
+            rom_col_in   <= 4'h0;
+        end else begin
+            case (state)
+                IDLE: begin
+                    resp_valid <= 1'b0;
+
+                    if (req_valid && req_ready) begin
+                        rom_wl_addr <= wl_addr;
+                        rom_col_in  <= col_addr;
+                        req_ready   <= 1'b0;
+                        state       <= ACCESS;
+                    end
+                end
+
+                ACCESS: begin
+                    // DOUT valid now (negedge set WLEN, clk_200 set SAEN)
+                    resp_rdata <= rom_dout;
+                    resp_valid <= 1'b1;
+                    state      <= RESPOND;
+                end
+
+                RESPOND: begin
+                    resp_valid <= 1'b0;
+                    req_ready  <= 1'b1;
+                    state      <= IDLE;
+                end
+
+                default: state <= IDLE;
+            endcase
+        end
+    end
+
+    // --------------------------------------------------------
+    // Negedge clk_50: PREEN and WLEN transitions
+    // --------------------------------------------------------
+    always @(negedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            rom_preen <= 1'b1;   // precharging during reset
+            rom_wlen  <= 1'b0;
+        end else begin
+            if (state == ACCESS) begin
+                rom_preen <= 1'b0;   // precharge done
+                rom_wlen  <= 1'b1;   // word line active
+            end else begin
+                rom_preen <= 1'b1;   // precharging
+                rom_wlen  <= 1'b0;
+            end
+        end
+    end
+
+    // --------------------------------------------------------
+    // Posedge clk_200: SAEN transition (5ns after negedge clk_50)
+    // Only assert when WLEN is already high (set by negedge)
+    // --------------------------------------------------------
+    always @(posedge clk_fast or negedge rst_n) begin
+        if (!rst_n) begin
+            rom_saen <= 1'b0;
+        end else begin
+            if (state == ACCESS && rom_wlen) begin
+                rom_saen <= 1'b1;
+            end else begin
+                rom_saen <= 1'b0;
+            end
+        end
     end
 
 endmodule
@@ -1092,26 +1200,65 @@ endmodule
 
 // ============================================================
 // core_top.v — Minimal ML Inference SoC Top Level
-// 
-// Architecture:
-//   RV32IM core + DotProd4 + JTAG bridge
-//   Simple bus: 2 masters (core, jtag) → 2 slaves (sram, rom)
+//
+// Clocking:
+//   pad_clk (200MHz) → clk_div → clk_100 (mem ctrl) + clk_50 (core)
 //
 // Memory Map:
-//   0x08000000 - 0x08001FFF : 8KB SRAM (firmware + data)
-//   0x20000000 - 0x20003FFF : 16KB ROM (weights)
+//   0x08000000 - 0x08001FFF : 8KB SRAM
+//   0x20000000 - 0x20003FFF : 16KB ROM
+//
+// SRAM and ROM macros are EXTERNAL — not in this RTL.
+// Controllers output raw control signals to top-level ports.
+// These get manually routed to macro pads during P&R.
 // ============================================================
 
 module core_top (
-    input  wire        clk,
-    input  wire        rst_n,      // active-low reset
+    input  wire        pad_clk,     // 200 MHz pad clock
+    input  wire        rst_n,       // active-low reset
 
     // JTAG interface
     input  wire        jtag_tck,
     input  wire        jtag_tms,
     input  wire        jtag_tdi,
-    output wire        jtag_tdo
+    output wire        jtag_tdo,
+
+    // SRAM macro pins (directly to pads)
+    output wire        sram_den,        // decoder enable (active high)
+    output wire [7:0]  sram_addr,       // row address A<7:0>
+    output wire [2:0]  sram_col_addr,   // column mux address C<2:0>
+    output wire        sram_prechg,     // precharge (active low)
+    output wire        sram_ren,        // read/sense enable
+    output wire        sram_wen,        // write enable
+    output wire        sram_en,         // column mux enable
+    output wire [31:0] sram_din,        // data in
+    input  wire [31:0] sram_dout,       // data out
+
+    // ROM macro pins (directly to pads)
+    output wire [7:0]  rom_wl_addr,
+    output wire [3:0]  rom_col_in,
+    output wire        rom_preen,
+    output wire        rom_wlen,
+    output wire        rom_saen,
+    input  wire [31:0] rom_dout,
+
+    // Debug outputs (anchor pipeline for synthesis)
+    output wire [31:0] debug_pc,
+    output wire        debug_resp_valid
 );
+
+    // --------------------------------------------------------
+    // Clock generation
+    // --------------------------------------------------------
+    wire clk_100;
+    wire clk_50;
+
+    clk_div u_clk_div (
+        .clk_200 (pad_clk),
+        .rst_n   (rst_n),
+        .clk_100 (clk_100),
+        .clk_50  (clk_50)
+    );
 
     // --------------------------------------------------------
     // Core bus master signals
@@ -1138,39 +1285,43 @@ module core_top (
     wire [31:0] jtag_resp_rdata;
 
     // --------------------------------------------------------
-    // SRAM slave signals
+    // SRAM slave bus signals
     // --------------------------------------------------------
-    wire        sram_req_valid;
-    wire        sram_req_ready;
-    wire [31:0] sram_req_addr;
-    wire [31:0] sram_req_wdata;
-    wire [3:0]  sram_req_wmask;
-    wire        sram_req_wen;
-    wire        sram_resp_valid;
-    wire [31:0] sram_resp_rdata;
+    wire        sram_bus_req_valid;
+    wire        sram_bus_req_ready;
+    wire [31:0] sram_bus_req_addr;
+    wire [31:0] sram_bus_req_wdata;
+    wire [3:0]  sram_bus_req_wmask;
+    wire        sram_bus_req_wen;
+    wire        sram_bus_resp_valid;
+    wire [31:0] sram_bus_resp_rdata;
 
     // --------------------------------------------------------
-    // ROM slave signals
+    // ROM slave bus signals
     // --------------------------------------------------------
-    wire        rom_req_valid;
-    wire        rom_req_ready;
-    wire [31:0] rom_req_addr;
-    wire [31:0] rom_req_wdata;
-    wire [3:0]  rom_req_wmask;
-    wire        rom_req_wen;
-    wire        rom_resp_valid;
-    wire [31:0] rom_resp_rdata;
+    wire        rom_bus_req_valid;
+    wire        rom_bus_req_ready;
+    wire [31:0] rom_bus_req_addr;
+    wire        rom_bus_req_wen;
+    wire        rom_bus_resp_valid;
+    wire [31:0] rom_bus_resp_rdata;
 
     // --------------------------------------------------------
     // Core reset (controlled by JTAG bridge)
     // --------------------------------------------------------
-    wire        core_rst_n;
+    wire core_rst_n;
 
     // --------------------------------------------------------
-    // RV32IM Core + DotProd4
+    // Debug outputs
+    // --------------------------------------------------------
+    assign debug_pc         = core_req_addr;
+    assign debug_resp_valid = core_resp_valid;
+
+    // --------------------------------------------------------
+    // RV32IM Core (clk_50)
     // --------------------------------------------------------
     rv32im_core u_core (
-        .clk            (clk),
+        .clk            (clk_50),
         .rst_n          (core_rst_n),
         .req_valid      (core_req_valid),
         .req_ready      (core_req_ready),
@@ -1183,10 +1334,10 @@ module core_top (
     );
 
     // --------------------------------------------------------
-    // JTAG Bridge
+    // JTAG Bridge (clk_50)
     // --------------------------------------------------------
     jtag_bridge u_jtag (
-        .clk            (clk),
+        .clk            (clk_50),
         .rst_n          (rst_n),
         .jtag_tck       (jtag_tck),
         .jtag_tms       (jtag_tms),
@@ -1204,16 +1355,11 @@ module core_top (
     );
 
     // --------------------------------------------------------
-    // Bus Crossbar (2 masters → 2 slaves)
-    // Address decode:
-    //   0x08000000-0x08001FFF → SRAM
-    //   0x20000000-0x20003FFF → ROM
+    // Bus Crossbar (clk_50)
     // --------------------------------------------------------
     bus_xbar u_xbar (
-        .clk            (clk),
+        .clk            (clk_50),
         .rst_n          (rst_n),
-
-        // Master 0: Core
         .m0_req_valid   (core_req_valid),
         .m0_req_ready   (core_req_ready),
         .m0_req_addr    (core_req_addr),
@@ -1222,8 +1368,6 @@ module core_top (
         .m0_req_wen     (core_req_wen),
         .m0_resp_valid  (core_resp_valid),
         .m0_resp_rdata  (core_resp_rdata),
-
-        // Master 1: JTAG
         .m1_req_valid   (jtag_req_valid),
         .m1_req_ready   (jtag_req_ready),
         .m1_req_addr    (jtag_req_addr),
@@ -1232,55 +1376,71 @@ module core_top (
         .m1_req_wen     (jtag_req_wen),
         .m1_resp_valid  (jtag_resp_valid),
         .m1_resp_rdata  (jtag_resp_rdata),
-
-        // Slave 0: SRAM
-        .s0_req_valid   (sram_req_valid),
-        .s0_req_ready   (sram_req_ready),
-        .s0_req_addr    (sram_req_addr),
-        .s0_req_wdata   (sram_req_wdata),
-        .s0_req_wmask   (sram_req_wmask),
-        .s0_req_wen     (sram_req_wen),
-        .s0_resp_valid  (sram_resp_valid),
-        .s0_resp_rdata  (sram_resp_rdata),
-
-        // Slave 1: ROM
-        .s1_req_valid   (rom_req_valid),
-        .s1_req_ready   (rom_req_ready),
-        .s1_req_addr    (rom_req_addr),
-        .s1_req_wdata   (rom_req_wdata),
-        .s1_req_wmask   (rom_req_wmask),
-        .s1_req_wen     (rom_req_wen),
-        .s1_resp_valid  (rom_resp_valid),
-        .s1_resp_rdata  (rom_resp_rdata)
+        .s0_req_valid   (sram_bus_req_valid),
+        .s0_req_ready   (sram_bus_req_ready),
+        .s0_req_addr    (sram_bus_req_addr),
+        .s0_req_wdata   (sram_bus_req_wdata),
+        .s0_req_wmask   (sram_bus_req_wmask),
+        .s0_req_wen     (sram_bus_req_wen),
+        .s0_resp_valid  (sram_bus_resp_valid),
+        .s0_resp_rdata  (sram_bus_resp_rdata),
+        .s1_req_valid   (rom_bus_req_valid),
+        .s1_req_ready   (rom_bus_req_ready),
+        .s1_req_addr    (rom_bus_req_addr),
+        .s1_req_wdata   (),             // ROM is read-only
+        .s1_req_wmask   (),
+        .s1_req_wen     (rom_bus_req_wen),
+        .s1_resp_valid  (rom_bus_resp_valid),
+        .s1_resp_rdata  (rom_bus_resp_rdata)
     );
 
     // --------------------------------------------------------
-    // SRAM (8KB @ 0x08000000) — behavioral for sim
+    // SRAM Controller (clk_50 bus + clk_200 timing)
     // --------------------------------------------------------
     sram_ctrl u_sram (
-        .clk            (clk),
+        .clk            (clk_50),
         .rst_n          (rst_n),
-        .req_valid      (sram_req_valid),
-        .req_ready      (sram_req_ready),
-        .req_addr       (sram_req_addr),
-        .req_wdata      (sram_req_wdata),
-        .req_wmask      (sram_req_wmask),
-        .req_wen        (sram_req_wen),
-        .resp_valid     (sram_resp_valid),
-        .resp_rdata     (sram_resp_rdata)
+        // Bus side
+        .req_valid      (sram_bus_req_valid),
+        .req_ready      (sram_bus_req_ready),
+        .req_addr       (sram_bus_req_addr),
+        .req_wdata      (sram_bus_req_wdata),
+        .req_wmask      (sram_bus_req_wmask),
+        .req_wen        (sram_bus_req_wen),
+        .resp_valid     (sram_bus_resp_valid),
+        .resp_rdata     (sram_bus_resp_rdata),
+        // SRAM macro pins
+        .sram_den       (sram_den),
+        .sram_addr      (sram_addr),
+        .sram_col_addr  (sram_col_addr),
+        .sram_prechg    (sram_prechg),
+        .sram_ren       (sram_ren),
+        .sram_wen       (sram_wen),
+        .sram_en        (sram_en),
+        .sram_din       (sram_din),
+        .sram_dout      (sram_dout)
     );
 
     // --------------------------------------------------------
-    // ROM (16KB @ 0x20000000) — deterministic pattern
+    // ROM Controller (clk_50 bus + clk_200 timing)
     // --------------------------------------------------------
     rom_ctrl u_rom (
-        .clk            (clk),
+        .clk            (clk_50),
+        .clk_fast       (pad_clk),
         .rst_n          (rst_n),
-        .req_valid      (rom_req_valid),
-        .req_ready      (rom_req_ready),
-        .req_addr       (rom_req_addr),
-        .resp_valid     (rom_resp_valid),
-        .resp_rdata     (rom_resp_rdata)
+        // Bus side
+        .req_valid      (rom_bus_req_valid),
+        .req_ready      (rom_bus_req_ready),
+        .req_addr       (rom_bus_req_addr),
+        .resp_valid     (rom_bus_resp_valid),
+        .resp_rdata     (rom_bus_resp_rdata),
+        // ROM macro pins
+        .rom_wl_addr    (rom_wl_addr),
+        .rom_col_in     (rom_col_in),
+        .rom_preen      (rom_preen),
+        .rom_wlen       (rom_wlen),
+        .rom_saen       (rom_saen),
+        .rom_dout       (rom_dout)
     );
 
 endmodule

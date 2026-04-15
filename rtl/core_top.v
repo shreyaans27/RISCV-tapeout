@@ -23,13 +23,16 @@ module core_top (
     input  wire        jtag_tdi,
     output wire        jtag_tdo,
 
-    // SRAM macro control signals (directly to pads)
-    output wire        sram_csn,
-    output wire        sram_wen,
-    output wire [10:0] sram_addr,
-    output wire [31:0] sram_wdata,
-    output wire [3:0]  sram_wmask,
-    input  wire [31:0] sram_rdata,
+    // SRAM macro pins (directly to pads)
+    output wire        sram_den,        // decoder enable (active high)
+    output wire [7:0]  sram_addr,       // row address A<7:0>
+    output wire [2:0]  sram_col_addr,   // column mux address C<2:0>
+    output wire        sram_prechg,     // precharge (active low)
+    output wire        sram_ren,        // read/sense enable
+    output wire        sram_wen,        // write enable
+    output wire        sram_en,         // column mux enable
+    output wire [31:0] sram_din,        // data in
+    input  wire [31:0] sram_dout,       // data out
 
     // ROM macro control signals (directly to pads)
     output wire        rom_en,
@@ -194,7 +197,6 @@ module core_top (
     // --------------------------------------------------------
     sram_ctrl u_sram (
         .clk            (clk_50),
-        .clk_fast       (pad_clk),
         .rst_n          (rst_n),
         // Bus side
         .req_valid      (sram_bus_req_valid),
@@ -205,13 +207,16 @@ module core_top (
         .req_wen        (sram_bus_req_wen),
         .resp_valid     (sram_bus_resp_valid),
         .resp_rdata     (sram_bus_resp_rdata),
-        // SRAM macro pins (directly to pads)
-        .sram_csn       (sram_csn),
-        .sram_wen       (sram_wen),
+        // SRAM macro pins
+        .sram_den       (sram_den),
         .sram_addr      (sram_addr),
-        .sram_wdata     (sram_wdata),
-        .sram_wmask     (sram_wmask),
-        .sram_rdata     (sram_rdata)
+        .sram_col_addr  (sram_col_addr),
+        .sram_prechg    (sram_prechg),
+        .sram_ren       (sram_ren),
+        .sram_wen       (sram_wen),
+        .sram_en        (sram_en),
+        .sram_din       (sram_din),
+        .sram_dout      (sram_dout)
     );
 
     // --------------------------------------------------------

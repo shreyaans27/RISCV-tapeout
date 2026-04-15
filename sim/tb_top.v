@@ -2,7 +2,6 @@
 
 module tb_top;
 
-    // 200 MHz clock = 5ns period
     reg pad_clk;
     reg rst_n;
     initial pad_clk = 0;
@@ -13,12 +12,15 @@ module tb_top;
     wire        debug_resp_valid;
 
     // SRAM macro signals
-    wire        sram_csn;
+    wire        sram_den;
+    wire [7:0]  sram_addr;
+    wire [2:0]  sram_col_addr;
+    wire        sram_prechg;
+    wire        sram_ren;
     wire        sram_wen;
-    wire [10:0] sram_addr;
-    wire [31:0] sram_wdata;
-    wire [3:0]  sram_wmask;
-    reg  [31:0] sram_rdata;
+    wire        sram_en;
+    wire [31:0] sram_din;
+    reg  [31:0] sram_dout;
 
     // ROM macro signals
     wire        rom_en;
@@ -34,12 +36,15 @@ module tb_top;
         .jtag_tms       (1'b0),
         .jtag_tdi       (1'b0),
         .jtag_tdo       (jtag_tdo),
-        .sram_csn       (sram_csn),
-        .sram_wen       (sram_wen),
+        .sram_den       (sram_den),
         .sram_addr      (sram_addr),
-        .sram_wdata     (sram_wdata),
-        .sram_wmask     (sram_wmask),
-        .sram_rdata     (sram_rdata),
+        .sram_col_addr  (sram_col_addr),
+        .sram_prechg    (sram_prechg),
+        .sram_ren       (sram_ren),
+        .sram_wen       (sram_wen),
+        .sram_en        (sram_en),
+        .sram_din       (sram_din),
+        .sram_dout      (sram_dout),
         .rom_en         (rom_en),
         .rom_wl_addr    (rom_wl_addr),
         .rom_col_addr   (rom_col_addr),
@@ -49,34 +54,32 @@ module tb_top;
     );
 
     // --------------------------------------------------------
-    // Behavioral SRAM model (external to DUT)
+    // Behavioral SRAM model
+    // 256 rows x 8 columns = 2048 words
     // --------------------------------------------------------
     reg [31:0] sram_mem [0:2047];
+    wire [10:0] sram_word_addr = {sram_addr, sram_col_addr};
 
-    // Write: clocked on pad_clk
-    always @(posedge pad_clk) begin
-        if (!sram_csn && !sram_wen) begin
-            if (sram_wmask[0]) sram_mem[sram_addr][ 7: 0] <= sram_wdata[ 7: 0];
-            if (sram_wmask[1]) sram_mem[sram_addr][15: 8] <= sram_wdata[15: 8];
-            if (sram_wmask[2]) sram_mem[sram_addr][23:16] <= sram_wdata[23:16];
-            if (sram_wmask[3]) sram_mem[sram_addr][31:24] <= sram_wdata[31:24];
+    // Write: when DEN goes high with WEN=1 and PRECHG=1
+    always @(posedge sram_den) begin
+        if (sram_wen && sram_prechg) begin
+            sram_mem[sram_word_addr] <= sram_din;
         end
     end
 
-    // Read: combinational (data available immediately when csn asserted)
+    // Read: combinational, valid when DEN=1 and REN=1 and EN=1
     always @(*) begin
-        if (!sram_csn)
-            sram_rdata = sram_mem[sram_addr];
+        if (sram_den && sram_ren && sram_en && sram_prechg)
+            sram_dout = sram_mem[sram_word_addr];
         else
-            sram_rdata = 32'h0;
+            sram_dout = 32'h0;
     end
 
     // --------------------------------------------------------
-    // Behavioral ROM model (external to DUT)
+    // Behavioral ROM model
     // --------------------------------------------------------
     wire [1:0] rom_pattern = rom_wl_addr[1:0] + rom_col_addr[1:0];
 
-    // Read: combinational (data available when rom_en asserted)
     always @(*) begin
         if (rom_en) begin
             case (rom_pattern)
@@ -91,15 +94,15 @@ module tb_top;
     end
 
     // --------------------------------------------------------
-    // Load firmware into SRAM
+    // Load firmware
     // --------------------------------------------------------
     initial begin
         $readmemh("firmware.hex", sram_mem);
     end
 
-    // Monitor addresses
-    localparam DONE_WORD_ADDR = 11'h2CA;    // 0xB28 >> 2
-    localparam RESULT_WORD_ADDR = 11'h2C8;  // 0xB20 >> 2
+    // Monitor
+    localparam DONE_WORD_ADDR = 11'h2CA;
+    localparam RESULT_WORD_ADDR = 11'h2C8;
 
     integer cycle_count;
 
@@ -109,20 +112,20 @@ module tb_top;
 
         rst_n = 0;
         cycle_count = 0;
-        #200;  // longer reset for clock divider to stabilize
+        #200;
         rst_n = 1;
         $display("--- Reset released ---");
 
         fork
             begin : watchdog
-                #2000000;  // longer timeout for slower effective clock
+                #2000000;
                 $display("ERROR: Timeout at cycle %0d", cycle_count);
                 $display("  PC=0x%08x", debug_pc);
                 $finish;
             end
             begin : wait_done
                 @(posedge pad_clk);
-                while (sram_mem[DONE_WORD_ADDR][7:0] !== 8'hFF)
+                while (sram_mem[DONE_WORD_ADDR] !== 32'hFFFFFFFF)
                     @(posedge pad_clk);
                 disable watchdog;
             end
@@ -130,20 +133,19 @@ module tb_top;
 
         #40;
         $display("--- Firmware completed at cycle %0d ---", cycle_count);
-        $display("  DONE   = 0x%02x", sram_mem[DONE_WORD_ADDR][7:0]);
-        $display("  RESULT = 0x%02x", sram_mem[RESULT_WORD_ADDR][7:0]);
+        $display("  DONE   = 0x%08x", sram_mem[DONE_WORD_ADDR]);
+        $display("  RESULT = 0x%08x", sram_mem[RESULT_WORD_ADDR]);
 
-        if (sram_mem[RESULT_WORD_ADDR][7:0] == 8'h01)
+        if (sram_mem[RESULT_WORD_ADDR] == 32'h00000001)
             $display("*** PASS ***");
         else
-            $display("*** FAIL (expected 0x01, got 0x%02x) ***",
-                sram_mem[RESULT_WORD_ADDR][7:0]);
+            $display("*** FAIL (expected 0x00000001, got 0x%08x) ***",
+                sram_mem[RESULT_WORD_ADDR]);
 
         #100;
         $finish;
     end
 
-    // Count cycles on the core clock (clk_50)
     always @(posedge u_dut.clk_50) begin
         if (rst_n) cycle_count <= cycle_count + 1;
     end

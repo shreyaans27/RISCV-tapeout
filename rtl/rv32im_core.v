@@ -153,13 +153,33 @@ module rv32im_core (
     wire [31:0] alu_a  = (opcode == OP_AUIPC) ? pc : rs1_data;
     wire [31:0] alu_b  = (opcode == OP_ARITH || opcode == OP_BRANCH) ? rs2_data :
                          (opcode == OP_STORE) ? imm_s : imm_i;
-    wire [31:0] alu_result;
+    wire [31:0] alu_result_fast;  // fast path: no multiplier in cone
+    wire [63:0] mul_result_ss;    // signed × signed
+    wire [63:0] mul_result_su;    // signed × unsigned
+    wire [63:0] mul_result_uu;    // unsigned × unsigned
     wire        alu_zero;
 
     alu u_alu (
         .op(alu_op), .a(alu_a), .b(alu_b),
-        .result(alu_result), .zero(alu_zero)
+        .result_fast(alu_result_fast),
+        .mul_result_ss(mul_result_ss),
+        .mul_result_su(mul_result_su),
+        .mul_result_uu(mul_result_uu),
+        .zero(alu_zero)
     );
+
+    // Select correct multiply result based on funct3
+    // This mux feeds ONLY mul_result_reg, never rf_wr_data directly
+    reg [31:0] mul_raw_selected;
+    always @(*) begin
+        case (funct3)
+            3'b000:  mul_raw_selected = mul_result_uu[31:0];   // MUL
+            3'b001:  mul_raw_selected = mul_result_ss[63:32];  // MULH
+            3'b010:  mul_raw_selected = mul_result_su[63:32];  // MULHSU
+            3'b011:  mul_raw_selected = mul_result_uu[63:32];  // MULHU
+            default: mul_raw_selected = 32'h0;
+        endcase
+    end
 
     // --------------------------------------------------------
     // Multiply detection
@@ -345,7 +365,7 @@ module rv32im_core (
                         OP_AUIPC: begin
                             rf_wr_en   <= 1'b1;
                             rf_wr_addr <= rd;
-                            rf_wr_data <= alu_result;
+                            rf_wr_data <= alu_result_fast;
                             pc         <= pc + 4;
                             state      <= S_FETCH;
                         end
@@ -375,33 +395,33 @@ module rv32im_core (
                         end
 
                         OP_LOAD: begin
-                            mem_addr_reg <= alu_result;
+                            mem_addr_reg <= alu_result_fast;
                             state        <= S_MEM;
                         end
 
                         OP_STORE: begin
-                            mem_addr_reg <= alu_result;
+                            mem_addr_reg <= alu_result_fast;
                             state        <= S_MEM;
                         end
 
                         OP_ARITHI: begin
                             rf_wr_en   <= 1'b1;
                             rf_wr_addr <= rd;
-                            rf_wr_data <= alu_result;
+                            rf_wr_data <= alu_result_fast;
                             pc         <= pc + 4;
                             state      <= S_FETCH;
                         end
 
                         OP_ARITH: begin
                             if (is_mul_op) begin
-                                // Multiply: pipeline — latch result, go to S_MUL_W
-                                mul_result_reg <= alu_result;
+                                // Multiply: pipeline — latch from isolated mul output
+                                mul_result_reg <= mul_raw_selected;
                                 state          <= S_MUL_W;
                             end else begin
                                 // Non-multiply: 1-cycle writeback
                                 rf_wr_en   <= 1'b1;
                                 rf_wr_addr <= rd;
-                                rf_wr_data <= alu_result;
+                                rf_wr_data <= alu_result_fast;
                                 pc         <= pc + 4;
                                 state      <= S_FETCH;
                             end

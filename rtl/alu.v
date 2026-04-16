@@ -1,17 +1,20 @@
 // ============================================================
 // alu.v — RV32IM ALU
 //
-// Supports: add, sub, and, or, xor, sll, srl, sra, slt, sltu
-// Branch comparisons: eq, ne, lt, ge, ltu, geu
-// Multiply: mul, mulh, mulhsu, mulhu (single-cycle)
+// Two separate outputs to break multiplier from critical path:
+//   result_fast — add/sub/logic/shift/slt ONLY (no multiplier)
+//   mul_result  — raw 64-bit multiplier output (goes to pipeline reg)
 // ============================================================
 
 module alu (
-    input  wire [3:0]  op,         // ALU operation select
-    input  wire [31:0] a,          // operand A (rs1 or PC)
-    input  wire [31:0] b,          // operand B (rs2 or immediate)
-    output reg  [31:0] result,     // ALU result
-    output wire        zero        // result == 0
+    input  wire [3:0]  op,
+    input  wire [31:0] a,
+    input  wire [31:0] b,
+    output reg  [31:0] result_fast,   // fast path: no multiplier
+    output wire [63:0] mul_result_ss, // signed × signed
+    output wire [63:0] mul_result_su, // signed × unsigned
+    output wire [63:0] mul_result_uu, // unsigned × unsigned
+    output wire        zero
 );
 
     // ALU operation encoding
@@ -25,41 +28,33 @@ module alu (
     localparam ALU_SRA  = 4'd7;
     localparam ALU_SLT  = 4'd8;
     localparam ALU_SLTU = 4'd9;
-    localparam ALU_MUL  = 4'd10;
-    localparam ALU_MULH = 4'd11;
-    localparam ALU_MULHSU = 4'd12;
-    localparam ALU_MULHU  = 4'd13;
 
-    // Sign-extended shift amount
     wire [4:0] shamt = b[4:0];
 
-    // Multiply — 32×32 → 64
+    // Multiplier — completely isolated, not in result_fast cone
     wire signed [31:0] a_signed = a;
     wire signed [31:0] b_signed = b;
-    wire signed [63:0] mul_ss = a_signed * b_signed;           // mulh
-    wire signed [63:0] mul_su = a_signed * {1'b0, b};          // mulhsu
-    wire        [63:0] mul_uu = {1'b0, a} * {1'b0, b};        // mulhu, mul
+    assign mul_result_ss = a_signed * b_signed;
+    assign mul_result_su = a_signed * {1'b0, b};
+    assign mul_result_uu = {1'b0, a} * {1'b0, b};
 
+    // Fast result — add/sub/logic/shift/slt ONLY
     always @(*) begin
         case (op)
-            ALU_ADD:    result = a + b;
-            ALU_SUB:    result = a - b;
-            ALU_AND:    result = a & b;
-            ALU_OR:     result = a | b;
-            ALU_XOR:    result = a ^ b;
-            ALU_SLL:    result = a << shamt;
-            ALU_SRL:    result = a >> shamt;
-            ALU_SRA:    result = $signed(a) >>> shamt;
-            ALU_SLT:    result = {31'b0, ($signed(a) < $signed(b))};
-            ALU_SLTU:   result = {31'b0, (a < b)};
-            ALU_MUL:    result = mul_uu[31:0];
-            ALU_MULH:   result = mul_ss[63:32];
-            ALU_MULHSU: result = mul_su[63:32];
-            ALU_MULHU:  result = mul_uu[63:32];
-            default:    result = 32'h0;
+            ALU_ADD:    result_fast = a + b;
+            ALU_SUB:    result_fast = a - b;
+            ALU_AND:    result_fast = a & b;
+            ALU_OR:     result_fast = a | b;
+            ALU_XOR:    result_fast = a ^ b;
+            ALU_SLL:    result_fast = a << shamt;
+            ALU_SRL:    result_fast = a >> shamt;
+            ALU_SRA:    result_fast = $signed(a) >>> shamt;
+            ALU_SLT:    result_fast = {31'b0, ($signed(a) < $signed(b))};
+            ALU_SLTU:   result_fast = {31'b0, (a < b)};
+            default:    result_fast = 32'h0;
         endcase
     end
 
-    assign zero = (result == 32'h0);
+    assign zero = (result_fast == 32'h0);
 
 endmodule

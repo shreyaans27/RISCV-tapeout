@@ -2,9 +2,8 @@
 // rv32im_core.v — Minimal RV32IM Core
 //
 // 3-stage pipeline: Fetch → Decode/Execute → Writeback
-// Supports: RV32IM base integer + multiply
-// Custom: dotprod4 (opcode 0x0B)
-// No: CSRs (except mcycle stub), no interrupts, no VM, no PMP
+// MUL/MULH/MULHSU/MULHU are 2-cycle (pipelined multiply)
+// All other ALU ops are 1-cycle
 //
 // Memory interface: simple valid/ready bus master
 // Reset vector: 0x08000000
@@ -14,7 +13,6 @@ module rv32im_core (
     input  wire        clk,
     input  wire        rst_n,
 
-    // Bus master interface
     output reg         req_valid,
     input  wire        req_ready,
     output reg  [31:0] req_addr,
@@ -30,7 +28,6 @@ module rv32im_core (
     // --------------------------------------------------------
     localparam RESET_VEC = 32'h08000000;
 
-    // Opcodes
     localparam OP_LUI    = 7'b0110111;
     localparam OP_AUIPC  = 7'b0010111;
     localparam OP_JAL    = 7'b1101111;
@@ -44,7 +41,6 @@ module rv32im_core (
     localparam OP_SYSTEM = 7'b1110011;
     localparam OP_CUSTOM0= 7'b0001011;
 
-    // ALU ops
     localparam ALU_ADD  = 4'd0;
     localparam ALU_SUB  = 4'd1;
     localparam ALU_AND  = 4'd2;
@@ -66,17 +62,10 @@ module rv32im_core (
     localparam S_EXECUTE = 3'd2;
     localparam S_MEM     = 3'd3;
     localparam S_MEM_W   = 3'd4;
+    localparam S_MUL_W   = 3'd5;  // NEW: wait for multiply pipeline reg
 
     reg [2:0] state;
-
-    // --------------------------------------------------------
-    // PC
-    // --------------------------------------------------------
     reg [31:0] pc;
-
-    // --------------------------------------------------------
-    // Instruction register
-    // --------------------------------------------------------
     reg [31:0] instr;
 
     wire [6:0]  opcode = instr[6:0];
@@ -104,15 +93,10 @@ module rv32im_core (
     wire [31:0] rs1_data, rs2_data;
 
     regfile u_rf (
-        .clk      (clk),
-        .rst_n    (rst_n),
-        .rs1_addr (rs1),
-        .rs1_data (rs1_data),
-        .rs2_addr (rs2),
-        .rs2_data (rs2_data),
-        .wr_en    (rf_wr_en),
-        .wr_addr  (rf_wr_addr),
-        .wr_data  (rf_wr_data)
+        .clk(clk), .rst_n(rst_n),
+        .rs1_addr(rs1), .rs1_data(rs1_data),
+        .rs2_addr(rs2), .rs2_data(rs2_data),
+        .wr_en(rf_wr_en), .wr_addr(rf_wr_addr), .wr_data(rf_wr_data)
     );
 
     // --------------------------------------------------------
@@ -163,7 +147,7 @@ module rv32im_core (
     end
 
     // --------------------------------------------------------
-    // ALU — combinational inputs from current instruction
+    // ALU — combinational inputs
     // --------------------------------------------------------
     wire [3:0]  alu_op = decoded_alu_op;
     wire [31:0] alu_a  = (opcode == OP_AUIPC) ? pc : rs1_data;
@@ -173,12 +157,18 @@ module rv32im_core (
     wire        alu_zero;
 
     alu u_alu (
-        .op     (alu_op),
-        .a      (alu_a),
-        .b      (alu_b),
-        .result (alu_result),
-        .zero   (alu_zero)
+        .op(alu_op), .a(alu_a), .b(alu_b),
+        .result(alu_result), .zero(alu_zero)
     );
+
+    // --------------------------------------------------------
+    // Multiply detection
+    // --------------------------------------------------------
+    wire is_mul_op = (opcode == OP_ARITH) && (funct7 == 7'h01) &&
+                     (funct3 <= 3'b011);
+
+    // Multiply pipeline register — latched at end of S_EXECUTE
+    reg [31:0] mul_result_reg;
 
     // --------------------------------------------------------
     // DotProd4
@@ -188,18 +178,14 @@ module rv32im_core (
     wire [31:0] dp_result;
 
     dotprod4 u_dp (
-        .clk      (clk),
-        .rst_n    (rst_n),
-        .valid    (dp_valid),
-        .funct7   (funct7),
-        .rs1_data (rs1_data),
-        .rs2_data (rs2_data),
-        .ready    (dp_ready),
-        .result   (dp_result)
+        .clk(clk), .rst_n(rst_n),
+        .valid(dp_valid), .funct7(funct7),
+        .rs1_data(rs1_data), .rs2_data(rs2_data),
+        .ready(dp_ready), .result(dp_result)
     );
 
     // --------------------------------------------------------
-    // Branch comparison (combinational)
+    // Branch comparison
     // --------------------------------------------------------
     reg branch_taken;
     always @(*) begin
@@ -219,11 +205,10 @@ module rv32im_core (
     // --------------------------------------------------------
     reg [31:0] mem_addr_reg;
 
-    // Load alignment
     reg [31:0] mem_result;
     always @(*) begin
         case (funct3)
-            3'b000: begin // LB
+            3'b000: begin
                 case (mem_addr_reg[1:0])
                     2'b00: mem_result = {{24{resp_rdata[ 7]}}, resp_rdata[ 7: 0]};
                     2'b01: mem_result = {{24{resp_rdata[15]}}, resp_rdata[15: 8]};
@@ -231,14 +216,14 @@ module rv32im_core (
                     2'b11: mem_result = {{24{resp_rdata[31]}}, resp_rdata[31:24]};
                 endcase
             end
-            3'b001: begin // LH
+            3'b001: begin
                 case (mem_addr_reg[1])
                     1'b0: mem_result = {{16{resp_rdata[15]}}, resp_rdata[15: 0]};
                     1'b1: mem_result = {{16{resp_rdata[31]}}, resp_rdata[31:16]};
                 endcase
             end
-            3'b010: mem_result = resp_rdata; // LW
-            3'b100: begin // LBU
+            3'b010: mem_result = resp_rdata;
+            3'b100: begin
                 case (mem_addr_reg[1:0])
                     2'b00: mem_result = {24'b0, resp_rdata[ 7: 0]};
                     2'b01: mem_result = {24'b0, resp_rdata[15: 8]};
@@ -246,7 +231,7 @@ module rv32im_core (
                     2'b11: mem_result = {24'b0, resp_rdata[31:24]};
                 endcase
             end
-            3'b101: begin // LHU
+            3'b101: begin
                 case (mem_addr_reg[1])
                     1'b0: mem_result = {16'b0, resp_rdata[15: 0]};
                     1'b1: mem_result = {16'b0, resp_rdata[31:16]};
@@ -261,7 +246,7 @@ module rv32im_core (
     reg [3:0]  store_mask;
     always @(*) begin
         case (funct3)
-            3'b000: begin // SB
+            3'b000: begin
                 case (mem_addr_reg[1:0])
                     2'b00: begin store_data = {24'b0, rs2_data[7:0]};       store_mask = 4'b0001; end
                     2'b01: begin store_data = {16'b0, rs2_data[7:0], 8'b0}; store_mask = 4'b0010; end
@@ -269,13 +254,13 @@ module rv32im_core (
                     2'b11: begin store_data = {rs2_data[7:0], 24'b0};       store_mask = 4'b1000; end
                 endcase
             end
-            3'b001: begin // SH
+            3'b001: begin
                 case (mem_addr_reg[1])
                     1'b0: begin store_data = {16'b0, rs2_data[15:0]};       store_mask = 4'b0011; end
                     1'b1: begin store_data = {rs2_data[15:0], 16'b0};       store_mask = 4'b1100; end
                 endcase
             end
-            3'b010: begin // SW
+            3'b010: begin
                 store_data = rs2_data;
                 store_mask = 4'b1111;
             end
@@ -304,7 +289,7 @@ module rv32im_core (
         if (!rst_n) begin
             state      <= S_FETCH;
             pc         <= RESET_VEC;
-            instr      <= 32'h00000013; // NOP
+            instr      <= 32'h00000013;
             req_valid  <= 1'b0;
             req_addr   <= 32'h0;
             req_wdata  <= 32'h0;
@@ -314,7 +299,8 @@ module rv32im_core (
             rf_wr_addr <= 5'h0;
             rf_wr_data <= 32'h0;
             dp_valid   <= 1'b0;
-            mem_addr_reg <= 32'h0;
+            mem_addr_reg   <= 32'h0;
+            mul_result_reg <= 32'h0;
         end else begin
             // Defaults
             rf_wr_en <= 1'b0;
@@ -359,7 +345,7 @@ module rv32im_core (
                         OP_AUIPC: begin
                             rf_wr_en   <= 1'b1;
                             rf_wr_addr <= rd;
-                            rf_wr_data <= alu_result; // pc + imm_u
+                            rf_wr_data <= alu_result;
                             pc         <= pc + 4;
                             state      <= S_FETCH;
                         end
@@ -389,12 +375,12 @@ module rv32im_core (
                         end
 
                         OP_LOAD: begin
-                            mem_addr_reg <= alu_result; // rs1 + imm_i
+                            mem_addr_reg <= alu_result;
                             state        <= S_MEM;
                         end
 
                         OP_STORE: begin
-                            mem_addr_reg <= alu_result; // rs1 + imm_s
+                            mem_addr_reg <= alu_result;
                             state        <= S_MEM;
                         end
 
@@ -407,11 +393,18 @@ module rv32im_core (
                         end
 
                         OP_ARITH: begin
-                            rf_wr_en   <= 1'b1;
-                            rf_wr_addr <= rd;
-                            rf_wr_data <= alu_result;
-                            pc         <= pc + 4;
-                            state      <= S_FETCH;
+                            if (is_mul_op) begin
+                                // Multiply: pipeline — latch result, go to S_MUL_W
+                                mul_result_reg <= alu_result;
+                                state          <= S_MUL_W;
+                            end else begin
+                                // Non-multiply: 1-cycle writeback
+                                rf_wr_en   <= 1'b1;
+                                rf_wr_addr <= rd;
+                                rf_wr_data <= alu_result;
+                                pc         <= pc + 4;
+                                state      <= S_FETCH;
+                            end
                         end
 
                         OP_FENCE: begin
@@ -445,6 +438,17 @@ module rv32im_core (
                             state <= S_FETCH;
                         end
                     endcase
+                end
+
+                // ============================================
+                // MUL_WAIT — 2nd cycle of multiply pipeline
+                // ============================================
+                S_MUL_W: begin
+                    rf_wr_en   <= 1'b1;
+                    rf_wr_addr <= rd;
+                    rf_wr_data <= mul_result_reg;
+                    pc         <= pc + 4;
+                    state      <= S_FETCH;
                 end
 
                 // ============================================

@@ -1,36 +1,36 @@
 // ============================================================
 // clk_div.v — 3-stage divide-by-2 frequency divider
 //
-// Input:  clk_200  (200 MHz from pad)
-// Output: clk_100  (100 MHz — for memory controller timing)
-//         clk_50   (50 MHz  — core clock)
+// Input:  pad_clk (100 MHz)
+// Output: clk_50  (50 MHz)
+//         clk_25  (25 MHz) — core, JTAG, bus
 // ============================================================
 
 module clk_div (
-    input  wire clk_200,
+    input  wire pad_clk,
     input  wire rst_n,
-    output wire clk_100,
-    output wire clk_50
+    output wire clk_50,
+    output wire clk_25
 );
 
-    // Stage 1: 200 → 100 MHz
+    // Stage 1: 100 → 50 MHz
     reg div2_reg;
-    always @(posedge clk_200 or negedge rst_n) begin
+    always @(posedge pad_clk or negedge rst_n) begin
         if (!rst_n)
             div2_reg <= 1'b0;
         else
             div2_reg <= ~div2_reg;
     end
-    assign clk_100 = div2_reg;
+    assign clk_50 = div2_reg;
 
-    // Stage 2: 100 → 50 MHz
+    // Stage 2: 50 → 25 MHz
     reg div4_reg;
-    always @(posedge clk_100 or negedge rst_n) begin
+    always @(posedge clk_50 or negedge rst_n) begin
         if (!rst_n)
             div4_reg <= 1'b0;
         else
             div4_reg <= ~div4_reg;
     end
-    assign clk_50 = div4_reg;
+    assign clk_25 = div4_reg;
 
 endmodule

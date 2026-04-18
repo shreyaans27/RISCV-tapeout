@@ -71,6 +71,9 @@ CELL_DEFS = {
     # Latch
     "dlxbp_1":  {"type": "latch", "inputs": ["D"], "outputs": ["Q", "Q_N"], "clock": "GATE",
                  "async": None, "async_type": None},
+    "a22oi_1":  {"type": "combo", "inputs": ["A1", "A2", "B1", "B2"], "outputs": ["Y"]},
+    "a22oi_2":  {"type": "combo", "inputs": ["A1", "A2", "B1", "B2"], "outputs": ["Y"]},
+    "xnor2_1":  {"type": "combo", "inputs": ["A", "B"], "outputs": ["Y"]},
 }
 
 

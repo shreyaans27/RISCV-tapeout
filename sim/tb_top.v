@@ -5,7 +5,7 @@ module tb_top;
     reg pad_clk;
     reg rst_n;
     initial pad_clk = 0;
-    always #2.5 pad_clk = ~pad_clk;
+    always #5 pad_clk = ~pad_clk;
 
     wire jtag_tdo;
     wire [31:0] debug_pc;
@@ -116,7 +116,11 @@ module tb_top;
         cycle_count = 0;
         #200;
         rst_n = 1;
-        $display("--- Reset released ---");
+        // Release core from JTAG control (bypass for regression testing)
+        @(posedge u_dut.clk_25);
+        u_dut.u_jtag.core_in_reset = 1'b0;
+        u_dut.u_jtag.core_halted = 1'b0;
+        $display("--- Reset released, core running ---");
 
         fork
             begin : watchdog
@@ -148,7 +152,7 @@ module tb_top;
         $finish;
     end
 
-    always @(posedge u_dut.clk_50) begin
+    always @(posedge u_dut.clk_25) begin
         if (rst_n) cycle_count <= cycle_count + 1;
     end
 

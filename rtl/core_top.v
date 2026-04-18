@@ -2,7 +2,7 @@
 // core_top.v — Minimal ML Inference SoC Top Level
 //
 // Clocking:
-//   pad_clk (200MHz) → clk_div → clk_100 (mem ctrl) + clk_50 (core)
+//   pad_clk (100MHz) → clk_div → clk_50 (mem ctrl timing) + clk_25 (core)
 //
 // Memory Map:
 //   0x08000000 - 0x08001FFF : 8KB SRAM
@@ -50,14 +50,14 @@ module core_top (
     // --------------------------------------------------------
     // Clock generation
     // --------------------------------------------------------
-    wire clk_100;
     wire clk_50;
+    wire clk_25;
 
     clk_div u_clk_div (
-        .clk_200 (pad_clk),
+        .pad_clk (pad_clk),
         .rst_n   (rst_n),
-        .clk_100 (clk_100),
-        .clk_50  (clk_50)
+        .clk_50  (clk_50),
+        .clk_25  (clk_25)
     );
 
     // --------------------------------------------------------
@@ -110,18 +110,32 @@ module core_top (
     // Core reset (controlled by JTAG bridge)
     // --------------------------------------------------------
     wire core_rst_n;
+    wire core_clk_en;
 
     // --------------------------------------------------------
     // Debug outputs
     // --------------------------------------------------------
-    assign debug_pc         = core_req_addr;
+    wire [31:0] debug_pc_internal = core_req_addr;
+    assign debug_pc         = debug_pc_internal;
     assign debug_resp_valid = core_resp_valid;
 
     // --------------------------------------------------------
-    // RV32IM Core (clk_50)
+    // Clock gating for core (JTAG single-step support)
+    // When core_clk_en=0, core is frozen
+    wire clk_core_gated;
+    reg clk_gate_latch;
+    /* verilator lint_off LATCH */
+    always @(*) begin
+        if (!clk_25)
+            clk_gate_latch = core_clk_en;
+    end
+    /* verilator lint_on LATCH */
+    assign clk_core_gated = clk_25 & clk_gate_latch;
+
+    // RV32IM Core (clk_25, gated)
     // --------------------------------------------------------
     rv32im_core u_core (
-        .clk            (clk_50),
+        .clk            (clk_core_gated),
         .rst_n          (core_rst_n),
         .req_valid      (core_req_valid),
         .req_ready      (core_req_ready),
@@ -134,16 +148,17 @@ module core_top (
     );
 
     // --------------------------------------------------------
-    // JTAG Bridge (clk_50)
+    // JTAG Bridge (clk_25)
     // --------------------------------------------------------
     jtag_bridge u_jtag (
-        .clk            (clk_50),
+        .clk            (clk_25),
         .rst_n          (rst_n),
         .jtag_tck       (jtag_tck),
         .jtag_tms       (jtag_tms),
         .jtag_tdi       (jtag_tdi),
         .jtag_tdo       (jtag_tdo),
         .core_rst_n     (core_rst_n),
+        .core_clk_en    (core_clk_en),
         .req_valid      (jtag_req_valid),
         .req_ready      (jtag_req_ready),
         .req_addr       (jtag_req_addr),
@@ -151,14 +166,15 @@ module core_top (
         .req_wmask      (jtag_req_wmask),
         .req_wen        (jtag_req_wen),
         .resp_valid     (jtag_resp_valid),
-        .resp_rdata     (jtag_resp_rdata)
+        .resp_rdata     (jtag_resp_rdata),
+        .debug_pc       (debug_pc_internal)
     );
 
     // --------------------------------------------------------
-    // Bus Crossbar (clk_50)
+    // Bus Crossbar (clk_25)
     // --------------------------------------------------------
     bus_xbar u_xbar (
-        .clk            (clk_50),
+        .clk            (clk_25),
         .rst_n          (rst_n),
         .m0_req_valid   (core_req_valid),
         .m0_req_ready   (core_req_ready),
@@ -195,10 +211,10 @@ module core_top (
     );
 
     // --------------------------------------------------------
-    // SRAM Controller (clk_50 bus + clk_200 timing)
+    // SRAM Controller (clk_25 bus + pad_clk timing)
     // --------------------------------------------------------
     sram_ctrl u_sram (
-        .clk            (clk_50),
+        .clk            (clk_25),
         .clk_fast       (pad_clk),
         .rst_n          (rst_n),
         // Bus side
@@ -223,10 +239,10 @@ module core_top (
     );
 
     // --------------------------------------------------------
-    // ROM Controller (clk_50 bus + clk_200 timing)
+    // ROM Controller (clk_25 bus + pad_clk timing)
     // --------------------------------------------------------
     rom_ctrl u_rom (
-        .clk            (clk_50),
+        .clk            (clk_25),
         .clk_fast       (pad_clk),
         .rst_n          (rst_n),
         // Bus side

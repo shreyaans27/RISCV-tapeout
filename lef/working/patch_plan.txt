@@ -1,0 +1,183 @@
+Patch plan: 40 insertions
+======================================================================
+
+[inv_2.Y]  insert GATEAREA at line 3892 (from inv_2.A)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.3168 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.3168 LAYER METAL1 ;
+
+[inv_4.Y]  insert GATEAREA at line 3988 (from inv_4.A)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.6336 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.6336 LAYER METAL1 ;
+
+[inv_8.Y]  insert GATEAREA at line 4096 (from inv_8.A)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 1.2672 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 1.2672 LAYER METAL1 ;
+
+[mux2.X]  insert GATEAREA at line 4239 (from mux2.A1)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.1584 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.1584 LAYER METAL1 ;
+
+[mux2i.Y]  insert GATEAREA at line 4407 (from mux2i.A0)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.1584 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.1584 LAYER METAL1 ;
+
+[nand2_1.Y]  insert GATEAREA at line 4634 (from nand2_1.A)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.198 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.198 LAYER METAL1 ;
+
+[nand2_2.Y]  insert GATEAREA at line 4690 (from nand2_2.A)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.396 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.396 LAYER METAL1 ;
+
+[nand2_4.Y]  insert GATEAREA at line 4864 (from nand2_4.B)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.792 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.792 LAYER METAL1 ;
+
+[nand2_8.Y]  insert GATEAREA at line 5059 (from nand2_8.A)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 1.584 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 1.584 LAYER METAL1 ;
+
+[nand2b_1.Y]  insert GATEAREA at line 5235 (from nand2b_1.B)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.198 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.198 LAYER METAL1 ;
+
+[nand4_1.Y]  insert GATEAREA at line 5332 (from nand4_1.B)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.2772 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.2772 LAYER METAL1 ;
+
+[nor2_1.Y]  insert GATEAREA at line 5497 (from nor2_1.A)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.2772 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.2772 LAYER METAL1 ;
+
+[nor2_4.Y]  insert GATEAREA at line 5634 (from nor2_4.A)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 1.1088 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 1.1088 LAYER METAL1 ;
+
+[nor2_8.Y]  insert GATEAREA at line 5831 (from nor2_8.A)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 2.2176 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 2.2176 LAYER METAL1 ;
+
+[o21ai_1.Y]  insert GATEAREA at line 6148 (from o21ai_1.A2)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.3168 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.3168 LAYER METAL1 ;
+
+[o21ai_2.Y]  insert GATEAREA at line 6312 (from o21ai_2.A2)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.6336 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.6336 LAYER METAL1 ;
+
+[o21ai_4.Y]  insert GATEAREA at line 6639 (from o21ai_4.B1)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.792 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.792 LAYER METAL1 ;
+
+[o21ai_8.Y]  insert GATEAREA at line 6829 (from o21ai_8.B1)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 1.584 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 1.584 LAYER METAL1 ;
+
+[xnor2_1.Y]  insert GATEAREA at line 7198 (from xnor2_1.A)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.5148 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.5148 LAYER METAL1 ;
+
+[xor2_1.X]  insert GATEAREA at line 7339 (from xor2_1.B)
+    |     ANTENNAMODEL OXIDE1 ;
+    |       ANTENNAGATEAREA 0.594 LAYER METAL2 ;
+    |       ANTENNAGATEAREA 0.594 LAYER METAL1 ;
+
+[nor2_4.A]  insert DIFFAREA at line 5703 (from nor2_4.Y)
+    |     ANTENNADIFFAREA 2.3072 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 2.3072 LAYER METAL1 ;
+
+[nor2_4.B]  insert DIFFAREA at line 5764 (from nor2_4.Y)
+    |     ANTENNADIFFAREA 2.3072 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 2.3072 LAYER METAL1 ;
+
+[nor2_8.A]  insert DIFFAREA at line 5932 (from nor2_8.Y)
+    |     ANTENNADIFFAREA 4.6144 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 4.6144 LAYER METAL1 ;
+
+[nor2_8.B]  insert DIFFAREA at line 6015 (from nor2_8.Y)
+    |     ANTENNADIFFAREA 4.6144 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 4.6144 LAYER METAL1 ;
+
+[o21ai_1.A1]  insert DIFFAREA at line 6205 (from o21ai_1.Y)
+    |     ANTENNADIFFAREA 0.8844 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.8844 LAYER METAL1 ;
+
+[o21ai_1.A2]  insert DIFFAREA at line 6121 (from o21ai_1.Y)
+    |     ANTENNADIFFAREA 0.8844 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.8844 LAYER METAL1 ;
+
+[o21ai_1.B1]  insert DIFFAREA at line 6180 (from o21ai_1.Y)
+    |     ANTENNADIFFAREA 0.8844 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.8844 LAYER METAL1 ;
+
+[o21ai_2.A1]  insert DIFFAREA at line 6388 (from o21ai_2.Y)
+    |     ANTENNADIFFAREA 1.51 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.2204 LAYER METAL1 ;
+
+[o21ai_2.A2]  insert DIFFAREA at line 6281 (from o21ai_2.Y)
+    |     ANTENNADIFFAREA 1.51 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.2204 LAYER METAL1 ;
+
+[o21ai_2.B1]  insert DIFFAREA at line 6355 (from o21ai_2.Y)
+    |     ANTENNADIFFAREA 1.51 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.2204 LAYER METAL1 ;
+
+[o21ai_4.A1]  insert DIFFAREA at line 6593 (from o21ai_4.Y)
+    |     ANTENNADIFFAREA 3.02 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.2204 LAYER METAL1 ;
+
+[o21ai_4.A2]  insert DIFFAREA at line 6528 (from o21ai_4.Y)
+    |     ANTENNADIFFAREA 3.02 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.2204 LAYER METAL1 ;
+
+[o21ai_4.B1]  insert DIFFAREA at line 6482 (from o21ai_4.Y)
+    |     ANTENNADIFFAREA 3.02 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.2204 LAYER METAL1 ;
+
+[o21ai_8.A1]  insert DIFFAREA at line 6931 (from o21ai_8.Y)
+    |     ANTENNADIFFAREA 6.04 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.2204 LAYER METAL1 ;
+
+[o21ai_8.A2]  insert DIFFAREA at line 7005 (from o21ai_8.Y)
+    |     ANTENNADIFFAREA 6.04 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.2204 LAYER METAL1 ;
+
+[o21ai_8.B1]  insert DIFFAREA at line 6765 (from o21ai_8.Y)
+    |     ANTENNADIFFAREA 6.04 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.2204 LAYER METAL1 ;
+
+[xnor2_1.A]  insert DIFFAREA at line 7170 (from xnor2_1.Y)
+    |     ANTENNADIFFAREA 0.8844 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.8844 LAYER METAL1 ;
+
+[xnor2_1.B]  insert DIFFAREA at line 7247 (from xnor2_1.Y)
+    |     ANTENNADIFFAREA 0.8844 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.8844 LAYER METAL1 ;
+
+[xor2_1.A]  insert DIFFAREA at line 7428 (from xor2_1.X)
+    |     ANTENNADIFFAREA 0.766 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.766 LAYER METAL1 ;
+
+[xor2_1.B]  insert DIFFAREA at line 7387 (from xor2_1.X)
+    |     ANTENNADIFFAREA 0.766 LAYER METAL2 ;
+    |     ANTENNADIFFAREA 0.766 LAYER METAL1 ;
+

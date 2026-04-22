@@ -1,0 +1,730 @@
+  [line 5] SKIP PROPERTYDEFINITIONS block
+  [line 9] END PROPERTYDEFINITIONS
+  [line 11] PUSH MACRO a211o_2  depth=1
+  [line 18] PUSH PIN X in a211o_2
+  [line 39] END (nested block, next='END')
+  [line 40] POP PIN X
+  [line 41] PUSH PIN VSS in a211o_2
+  [line 50] END (nested block, next='END')
+  [line 51] POP PIN VSS
+  [line 52] PUSH PIN A2 in a211o_2
+  [line 75] END (nested block, next='END')
+  [line 76] POP PIN A2
+  [line 77] PUSH PIN VDD in a211o_2
+  [line 86] END (nested block, next='END')
+  [line 87] POP PIN VDD
+  [line 88] PUSH PIN C1 in a211o_2
+  [line 110] END (nested block, next='END')
+  [line 111] POP PIN C1
+  [line 112] PUSH PIN B1 in a211o_2
+  [line 134] END (nested block, next='END')
+  [line 135] POP PIN B1
+  [line 136] PUSH PIN A1 in a211o_2
+  [line 158] END (nested block, next='END')
+  [line 159] POP PIN A1
+  [line 172] END (nested block, next='END')
+  [line 173] POP MACRO a211o_2
+  [line 175] PUSH MACRO a21oi_1  depth=1
+  [line 182] PUSH PIN Y in a21oi_1
+  [line 214] END (nested block, next='END')
+  [line 215] POP PIN Y
+  [line 216] PUSH PIN VSS in a21oi_1
+  [line 224] END (nested block, next='END')
+  [line 225] POP PIN VSS
+  [line 226] PUSH PIN A1 in a21oi_1
+  [line 250] END (nested block, next='END')
+  [line 251] POP PIN A1
+  [line 252] PUSH PIN B1 in a21oi_1
+  [line 277] END (nested block, next='END')
+  [line 278] POP PIN B1
+  [line 279] PUSH PIN VDD in a21oi_1
+  [line 287] END (nested block, next='END')
+  [line 288] POP PIN VDD
+  [line 289] PUSH PIN A2 in a21oi_1
+  [line 313] END (nested block, next='END')
+  [line 314] POP PIN A2
+  [line 327] END (nested block, next='END')
+  [line 328] POP MACRO a21oi_1
+  [line 330] PUSH MACRO a21oi_2  depth=1
+  [line 337] PUSH PIN Y in a21oi_2
+  [line 378] END (nested block, next='END')
+  [line 379] POP PIN Y
+  [line 380] PUSH PIN VSS in a21oi_2
+  [line 390] END (nested block, next='END')
+  [line 391] POP PIN VSS
+  [line 392] PUSH PIN A1 in a21oi_2
+  [line 424] END (nested block, next='END')
+  [line 425] POP PIN A1
+  [line 426] PUSH PIN B1 in a21oi_2
+  [line 456] END (nested block, next='END')
+  [line 457] POP PIN B1
+  [line 458] PUSH PIN A2 in a21oi_2
+  [line 490] END (nested block, next='END')
+  [line 491] POP PIN A2
+  [line 492] PUSH PIN VDD in a21oi_2
+  [line 502] END (nested block, next='END')
+  [line 503] POP PIN VDD
+  [line 522] END (nested block, next='END')
+  [line 523] POP MACRO a21oi_2
+  [line 525] PUSH MACRO a21oi_4  depth=1
+  [line 532] PUSH PIN Y in a21oi_4
+  [line 590] END (nested block, next='END')
+  [line 591] POP PIN Y
+  [line 592] PUSH PIN VSS in a21oi_4
+  [line 605] END (nested block, next='END')
+  [line 606] POP PIN VSS
+  [line 607] PUSH PIN A2 in a21oi_4
+  [line 651] END (nested block, next='END')
+  [line 652] POP PIN A2
+  [line 653] PUSH PIN A1 in a21oi_4
+  [line 698] END (nested block, next='END')
+  [line 699] POP PIN A1
+  [line 700] PUSH PIN B1 in a21oi_4
+  [line 739] END (nested block, next='END')
+  [line 740] POP PIN B1
+  [line 741] PUSH PIN VDD in a21oi_4
+  [line 755] END (nested block, next='END')
+  [line 756] POP PIN VDD
+  [line 785] END (nested block, next='END')
+  [line 786] POP MACRO a21oi_4
+  [line 788] PUSH MACRO a21oi_8  depth=1
+  [line 795] PUSH PIN Y in a21oi_8
+  [line 895] END (nested block, next='END')
+  [line 896] POP PIN Y
+  [line 897] PUSH PIN VSS in a21oi_8
+  [line 916] END (nested block, next='END')
+  [line 917] POP PIN VSS
+  [line 918] PUSH PIN A2 in a21oi_8
+  [line 988] END (nested block, next='END')
+  [line 989] POP PIN A2
+  [line 990] PUSH PIN A1 in a21oi_8
+  [line 1061] END (nested block, next='END')
+  [line 1062] POP PIN A1
+  [line 1063] PUSH PIN B1 in a21oi_8
+  [line 1122] END (nested block, next='END')
+  [line 1123] POP PIN B1
+  [line 1124] PUSH PIN VDD in a21oi_8
+  [line 1146] END (nested block, next='END')
+  [line 1147] POP PIN VDD
+  [line 1196] END (nested block, next='END')
+  [line 1197] POP MACRO a21oi_8
+  [line 1199] PUSH MACRO a22oi_1  depth=1
+  [line 1206] PUSH PIN B2 in a22oi_1
+  [line 1233] END (nested block, next='END')
+  [line 1234] POP PIN B2
+  [line 1235] PUSH PIN VSS in a22oi_1
+  [line 1243] END (nested block, next='END')
+  [line 1244] POP PIN VSS
+  [line 1245] PUSH PIN VDD in a22oi_1
+  [line 1253] END (nested block, next='END')
+  [line 1254] POP PIN VDD
+  [line 1255] PUSH PIN Y in a22oi_1
+  [line 1290] END (nested block, next='END')
+  [line 1291] POP PIN Y
+  [line 1292] PUSH PIN B1 in a22oi_1
+  [line 1318] END (nested block, next='END')
+  [line 1319] POP PIN B1
+  [line 1320] PUSH PIN A2 in a22oi_1
+  [line 1347] END (nested block, next='END')
+  [line 1348] POP PIN A2
+  [line 1349] PUSH PIN A1 in a22oi_1
+  [line 1374] END (nested block, next='END')
+  [line 1375] POP PIN A1
+  [line 1395] END (nested block, next='END')
+  [line 1396] POP MACRO a22oi_1
+  [line 1398] PUSH MACRO a22oi_2  depth=1
+  [line 1405] PUSH PIN A2 in a22oi_2
+  [line 1443] END (nested block, next='END')
+  [line 1444] POP PIN A2
+  [line 1445] PUSH PIN A1 in a22oi_2
+  [line 1483] END (nested block, next='END')
+  [line 1484] POP PIN A1
+  [line 1485] PUSH PIN Y in a22oi_2
+  [line 1534] END (nested block, next='END')
+  [line 1535] POP PIN Y
+  [line 1536] PUSH PIN B1 in a22oi_2
+  [line 1570] END (nested block, next='END')
+  [line 1571] POP PIN B1
+  [line 1572] PUSH PIN B2 in a22oi_2
+  [line 1610] END (nested block, next='END')
+  [line 1611] POP PIN B2
+  [line 1612] PUSH PIN VSS in a22oi_2
+  [line 1622] END (nested block, next='END')
+  [line 1623] POP PIN VSS
+  [line 1624] PUSH PIN VDD in a22oi_2
+  [line 1634] END (nested block, next='END')
+  [line 1635] POP PIN VDD
+  [line 1663] END (nested block, next='END')
+  [line 1664] POP MACRO a22oi_2
+  [line 1666] PUSH MACRO buf_1  depth=1
+  [line 1673] PUSH PIN VSS in buf_1
+  [line 1680] END (nested block, next='END')
+  [line 1681] POP PIN VSS
+  [line 1682] PUSH PIN A in buf_1
+  [line 1704] END (nested block, next='END')
+  [line 1705] POP PIN A
+  [line 1706] PUSH PIN VDD in buf_1
+  [line 1713] END (nested block, next='END')
+  [line 1714] POP PIN VDD
+  [line 1715] PUSH PIN X in buf_1
+  [line 1740] END (nested block, next='END')
+  [line 1741] POP PIN X
+  [line 1750] END (nested block, next='END')
+  [line 1751] POP MACRO buf_1
+  [line 1753] PUSH MACRO buf_16  depth=1
+  [line 1760] PUSH PIN X in buf_16
+  [line 1835] END (nested block, next='END')
+  [line 1836] POP PIN X
+  [line 1837] PUSH PIN A in buf_16
+  [line 1879] END (nested block, next='END')
+  [line 1880] POP PIN A
+  [line 1881] PUSH PIN VDD in buf_16
+  [line 1899] END (nested block, next='END')
+  [line 1900] POP PIN VDD
+  [line 1901] PUSH PIN VSS in buf_16
+  [line 1919] END (nested block, next='END')
+  [line 1920] POP PIN VSS
+  [line 1933] END (nested block, next='END')
+  [line 1934] POP MACRO buf_16
+  [line 1936] PUSH MACRO buf_2  depth=1
+  [line 1943] PUSH PIN VSS in buf_2
+  [line 1951] END (nested block, next='END')
+  [line 1952] POP PIN VSS
+  [line 1953] PUSH PIN A in buf_2
+  [line 1975] END (nested block, next='END')
+  [line 1976] POP PIN A
+  [line 1977] PUSH PIN VDD in buf_2
+  [line 1985] END (nested block, next='END')
+  [line 1986] POP PIN VDD
+  [line 1987] PUSH PIN X in buf_2
+  [line 2013] END (nested block, next='END')
+  [line 2014] POP PIN X
+  [line 2023] END (nested block, next='END')
+  [line 2024] POP MACRO buf_2
+  [line 2026] PUSH MACRO buf_4  depth=1
+  [line 2033] PUSH PIN VSS in buf_4
+  [line 2042] END (nested block, next='END')
+  [line 2043] POP PIN VSS
+  [line 2044] PUSH PIN A in buf_4
+  [line 2066] END (nested block, next='END')
+  [line 2067] POP PIN A
+  [line 2068] PUSH PIN VDD in buf_4
+  [line 2077] END (nested block, next='END')
+  [line 2078] POP PIN VDD
+  [line 2079] PUSH PIN X in buf_4
+  [line 2112] END (nested block, next='END')
+  [line 2113] POP PIN X
+  [line 2122] END (nested block, next='END')
+  [line 2123] POP MACRO buf_4
+  [line 2125] PUSH MACRO buf_8  depth=1
+  [line 2132] PUSH PIN VSS in buf_8
+  [line 2144] END (nested block, next='END')
+  [line 2145] POP PIN VSS
+  [line 2146] PUSH PIN A in buf_8
+  [line 2179] END (nested block, next='END')
+  [line 2180] POP PIN A
+  [line 2181] PUSH PIN VDD in buf_8
+  [line 2193] END (nested block, next='END')
+  [line 2194] POP PIN VDD
+  [line 2195] PUSH PIN X in buf_8
+  [line 2242] END (nested block, next='END')
+  [line 2243] POP PIN X
+  [line 2254] END (nested block, next='END')
+  [line 2255] POP MACRO buf_8
+  [line 2257] PUSH MACRO dfrtp_1  depth=1
+  [line 2264] PUSH PIN RESET in dfrtp_1
+  [line 2325] END (nested block, next='END')
+  [line 2326] POP PIN RESET
+  [line 2327] PUSH PIN VSS in dfrtp_1
+  [line 2345] END (nested block, next='END')
+  [line 2346] POP PIN VSS
+  [line 2347] PUSH PIN VDD in dfrtp_1
+  [line 2371] END (nested block, next='END')
+  [line 2372] POP PIN VDD
+  [line 2373] PUSH PIN NCLK in dfrtp_1
+  [line 2434] END (nested block, next='END')
+  [line 2435] POP PIN NCLK
+  [line 2436] PUSH PIN D in dfrtp_1
+  [line 2462] END (nested block, next='END')
+  [line 2463] POP PIN D
+  [line 2464] PUSH PIN Q in dfrtp_1
+  [line 2517] END (nested block, next='END')
+  [line 2518] POP PIN Q
+  [line 2519] PUSH PIN CLK in dfrtp_1
+  [line 2579] END (nested block, next='END')
+  [line 2580] POP PIN CLK
+  [line 2581] PUSH PIN RESET_B in dfrtp_1
+  [line 2606] END (nested block, next='END')
+  [line 2607] POP PIN RESET_B
+  [line 2742] END (nested block, next='END')
+  [line 2743] POP MACRO dfrtp_1
+  [line 2745] PUSH MACRO dfsbp_1  depth=1
+  [line 2752] PUSH PIN VSS in dfsbp_1
+  [line 2768] END (nested block, next='END')
+  [line 2769] POP PIN VSS
+  [line 2770] PUSH PIN CLK in dfsbp_1
+  [line 2795] END (nested block, next='END')
+  [line 2796] POP PIN CLK
+  [line 2797] PUSH PIN VDD in dfsbp_1
+  [line 2815] END (nested block, next='END')
+  [line 2816] POP PIN VDD
+  [line 2817] PUSH PIN D in dfsbp_1
+  [line 2839] END (nested block, next='END')
+  [line 2840] POP PIN D
+  [line 2841] PUSH PIN SET_B in dfsbp_1
+  [line 2874] END (nested block, next='END')
+  [line 2875] POP PIN SET_B
+  [line 2876] PUSH PIN Q_N in dfsbp_1
+  [line 2902] END (nested block, next='END')
+  [line 2903] POP PIN Q_N
+  [line 2904] PUSH PIN Q in dfsbp_1
+  [line 2930] END (nested block, next='END')
+  [line 2931] POP PIN Q
+  [line 3030] END (nested block, next='PROPERTY')
+  [line 3031] SKIP PROPERTY deviceLevel
+  [line 3032] SKIP PROPERTY CatenaDesignType
+  [line 3033] SKIP PROPERTY oaTaper
+  [line 3034] POP MACRO dfsbp_1
+  [line 3036] PUSH MACRO dfxtp_1  depth=1
+  [line 3043] PUSH PIN VDD in dfxtp_1
+  [line 3056] END (nested block, next='END')
+  [line 3057] POP PIN VDD
+  [line 3058] PUSH PIN Q in dfxtp_1
+  [line 3081] END (nested block, next='END')
+  [line 3082] POP PIN Q
+  [line 3083] PUSH PIN VSS in dfxtp_1
+  [line 3094] END (nested block, next='END')
+  [line 3095] POP PIN VSS
+  [line 3096] PUSH PIN CLK in dfxtp_1
+  [line 3121] END (nested block, next='END')
+  [line 3122] POP PIN CLK
+  [line 3123] PUSH PIN D in dfxtp_1
+  [line 3145] END (nested block, next='END')
+  [line 3146] POP PIN D
+  [line 3238] END (nested block, next='PROPERTY')
+  [line 3239] SKIP PROPERTY deviceLevel
+  [line 3240] SKIP PROPERTY CatenaDesignType
+  [line 3241] POP MACRO dfxtp_1
+  [line 3243] PUSH MACRO dlxbp_1  depth=1
+  [line 3250] PUSH PIN VSS in dlxbp_1
+  [line 3263] END (nested block, next='END')
+  [line 3264] POP PIN VSS
+  [line 3265] PUSH PIN VDD in dlxbp_1
+  [line 3278] END (nested block, next='END')
+  [line 3279] POP PIN VDD
+  [line 3280] PUSH PIN Q_N in dlxbp_1
+  [line 3304] END (nested block, next='END')
+  [line 3305] POP PIN Q_N
+  [line 3306] PUSH PIN D in dlxbp_1
+  [line 3328] END (nested block, next='END')
+  [line 3329] POP PIN D
+  [line 3330] PUSH PIN Q in dlxbp_1
+  [line 3353] END (nested block, next='END')
+  [line 3354] POP PIN Q
+  [line 3355] PUSH PIN GATE in dlxbp_1
+  [line 3378] END (nested block, next='END')
+  [line 3379] POP PIN GATE
+  [line 3433] END (nested block, next='END')
+  [line 3434] POP MACRO dlxbp_1
+  [line 3436] PUSH MACRO inv_1  depth=1
+  [line 3443] PUSH PIN Y in inv_1
+  [line 3465] END (nested block, next='END')
+  [line 3466] POP PIN Y
+  [line 3467] PUSH PIN VSS in inv_1
+  [line 3474] END (nested block, next='END')
+  [line 3475] POP PIN VSS
+  [line 3476] PUSH PIN A in inv_1
+  [line 3501] END (nested block, next='END')
+  [line 3502] POP PIN A
+  [line 3503] PUSH PIN VDD in inv_1
+  [line 3510] END (nested block, next='END')
+  [line 3511] POP PIN VDD
+  [line 3512] POP MACRO inv_1
+  [line 3514] PUSH MACRO inv_16  depth=1
+  [line 3521] PUSH PIN A in inv_16
+  [line 3596] END (nested block, next='END')
+  [line 3597] POP PIN A
+  [line 3598] PUSH PIN Y in inv_16
+  [line 3673] END (nested block, next='END')
+  [line 3674] POP PIN Y
+  [line 3675] PUSH PIN VDD in inv_16
+  [line 3690] END (nested block, next='END')
+  [line 3691] POP PIN VDD
+  [line 3692] PUSH PIN VSS in inv_16
+  [line 3707] END (nested block, next='END')
+  [line 3708] POP PIN VSS
+  [line 3709] POP MACRO inv_16
+  [line 3711] PUSH MACRO inv_2  depth=1
+  [line 3718] PUSH PIN Y in inv_2
+  [line 3748] END (nested block, next='END')
+  [line 3749] POP PIN Y
+  [line 3750] PUSH PIN VSS in inv_2
+  [line 3758] END (nested block, next='END')
+  [line 3759] POP PIN VSS
+  [line 3760] PUSH PIN A in inv_2
+  [line 3788] END (nested block, next='END')
+  [line 3789] POP PIN A
+  [line 3790] PUSH PIN VDD in inv_2
+  [line 3798] END (nested block, next='END')
+  [line 3799] POP PIN VDD
+  [line 3800] POP MACRO inv_2
+  [line 3802] PUSH MACRO inv_4  depth=1
+  [line 3809] PUSH PIN Y in inv_4
+  [line 3841] END (nested block, next='END')
+  [line 3842] POP PIN Y
+  [line 3843] PUSH PIN VSS in inv_4
+  [line 3852] END (nested block, next='END')
+  [line 3853] POP PIN VSS
+  [line 3854] PUSH PIN A in inv_4
+  [line 3886] END (nested block, next='END')
+  [line 3887] POP PIN A
+  [line 3888] PUSH PIN VDD in inv_4
+  [line 3897] END (nested block, next='END')
+  [line 3898] POP PIN VDD
+  [line 3899] SKIP PROPERTY deviceLevel
+  [line 3900] SKIP PROPERTY CatenaDesignType
+  [line 3901] POP MACRO inv_4
+  [line 3903] PUSH MACRO inv_8  depth=1
+  [line 3910] PUSH PIN Y in inv_8
+  [line 3963] END (nested block, next='END')
+  [line 3964] POP PIN Y
+  [line 3965] PUSH PIN VSS in inv_8
+  [line 3976] END (nested block, next='END')
+  [line 3977] POP PIN VSS
+  [line 3978] PUSH PIN A in inv_8
+  [line 4024] END (nested block, next='END')
+  [line 4025] POP PIN A
+  [line 4026] PUSH PIN VDD in inv_8
+  [line 4037] END (nested block, next='END')
+  [line 4038] POP PIN VDD
+  [line 4039] POP MACRO inv_8
+  [line 4041] PUSH MACRO mux2  depth=1
+  [line 4048] PUSH PIN X in mux2
+  [line 4072] END (nested block, next='END')
+  [line 4073] POP PIN X
+  [line 4074] PUSH PIN VSS in mux2
+  [line 4082] END (nested block, next='END')
+  [line 4083] POP PIN VSS
+  [line 4084] PUSH PIN VDD in mux2
+  [line 4092] END (nested block, next='END')
+  [line 4093] POP PIN VDD
+  [line 4094] PUSH PIN A1 in mux2
+  [line 4122] END (nested block, next='END')
+  [line 4123] POP PIN A1
+  [line 4124] PUSH PIN S in mux2
+  [line 4156] END (nested block, next='END')
+  [line 4157] POP PIN S
+  [line 4158] PUSH PIN A0 in mux2
+  [line 4183] END (nested block, next='END')
+  [line 4184] POP PIN A0
+  [line 4196] END (nested block, next='END')
+  [line 4197] POP MACRO mux2
+  [line 4199] PUSH MACRO mux2i  depth=1
+  [line 4206] PUSH PIN Y in mux2i
+  [line 4231] END (nested block, next='END')
+  [line 4232] POP PIN Y
+  [line 4233] PUSH PIN VSS in mux2i
+  [line 4241] END (nested block, next='END')
+  [line 4242] POP PIN VSS
+  [line 4243] PUSH PIN A0 in mux2i
+  [line 4269] END (nested block, next='END')
+  [line 4270] POP PIN A0
+  [line 4271] PUSH PIN VDD in mux2i
+  [line 4279] END (nested block, next='END')
+  [line 4280] POP PIN VDD
+  [line 4281] PUSH PIN A1 in mux2i
+  [line 4303] END (nested block, next='END')
+  [line 4304] POP PIN A1
+  [line 4305] PUSH PIN S in mux2i
+  [line 4334] END (nested block, next='END')
+  [line 4335] POP PIN S
+  [line 4353] END (nested block, next='END')
+  [line 4354] POP MACRO mux2i
+  [line 4356] PUSH MACRO nand2_1  depth=1
+  [line 4363] PUSH PIN A in nand2_1
+  [line 4389] END (nested block, next='END')
+  [line 4390] POP PIN A
+  [line 4391] PUSH PIN B in nand2_1
+  [line 4417] END (nested block, next='END')
+  [line 4418] POP PIN B
+  [line 4419] PUSH PIN Y in nand2_1
+  [line 4441] END (nested block, next='END')
+  [line 4442] POP PIN Y
+  [line 4443] PUSH PIN VDD in nand2_1
+  [line 4451] END (nested block, next='END')
+  [line 4452] POP PIN VDD
+  [line 4453] PUSH PIN VSS in nand2_1
+  [line 4460] END (nested block, next='END')
+  [line 4461] POP PIN VSS
+  [line 4462] POP MACRO nand2_1
+  [line 4464] PUSH MACRO nand2_2  depth=1
+  [line 4471] PUSH PIN Y in nand2_2
+  [line 4496] END (nested block, next='END')
+  [line 4497] POP PIN Y
+  [line 4498] PUSH PIN VSS in nand2_2
+  [line 4505] END (nested block, next='END')
+  [line 4506] POP PIN VSS
+  [line 4507] PUSH PIN A in nand2_2
+  [line 4534] END (nested block, next='END')
+  [line 4535] POP PIN A
+  [line 4536] PUSH PIN B in nand2_2
+  [line 4563] END (nested block, next='END')
+  [line 4564] POP PIN B
+  [line 4565] PUSH PIN VDD in nand2_2
+  [line 4574] END (nested block, next='END')
+  [line 4575] POP PIN VDD
+  [line 4576] POP MACRO nand2_2
+  [line 4578] PUSH MACRO nand2_4  depth=1
+  [line 4585] PUSH PIN VDD in nand2_4
+  [line 4596] END (nested block, next='END')
+  [line 4597] POP PIN VDD
+  [line 4598] PUSH PIN B in nand2_4
+  [line 4632] END (nested block, next='END')
+  [line 4633] POP PIN B
+  [line 4634] PUSH PIN Y in nand2_4
+  [line 4674] END (nested block, next='END')
+  [line 4675] POP PIN Y
+  [line 4676] PUSH PIN A in nand2_4
+  [line 4710] END (nested block, next='END')
+  [line 4711] POP PIN A
+  [line 4712] PUSH PIN VSS in nand2_4
+  [line 4720] END (nested block, next='END')
+  [line 4721] POP PIN VSS
+  [line 4731] END (nested block, next='END')
+  [line 4732] POP MACRO nand2_4
+  [line 4734] PUSH MACRO nand2_8  depth=1
+  [line 4741] PUSH PIN A in nand2_8
+  [line 4789] END (nested block, next='END')
+  [line 4790] POP PIN A
+  [line 4791] PUSH PIN VSS in nand2_8
+  [line 4801] END (nested block, next='END')
+  [line 4802] POP PIN VSS
+  [line 4803] PUSH PIN VDD in nand2_8
+  [line 4818] END (nested block, next='END')
+  [line 4819] POP PIN VDD
+  [line 4820] PUSH PIN Y in nand2_8
+  [line 4880] END (nested block, next='END')
+  [line 4881] POP PIN Y
+  [line 4882] PUSH PIN B in nand2_8
+  [line 4930] END (nested block, next='END')
+  [line 4931] POP PIN B
+  [line 4945] END (nested block, next='END')
+  [line 4946] POP MACRO nand2_8
+  [line 4948] PUSH MACRO nand2b_1  depth=1
+  [line 4955] PUSH PIN VSS in nand2b_1
+  [line 4963] END (nested block, next='END')
+  [line 4964] POP PIN VSS
+  [line 4965] PUSH PIN B in nand2b_1
+  [line 4987] END (nested block, next='END')
+  [line 4988] POP PIN B
+  [line 4989] PUSH PIN Y in nand2b_1
+  [line 5015] END (nested block, next='END')
+  [line 5016] POP PIN Y
+  [line 5017] PUSH PIN VDD in nand2b_1
+  [line 5025] END (nested block, next='END')
+  [line 5026] POP PIN VDD
+  [line 5027] PUSH PIN A_N in nand2b_1
+  [line 5049] END (nested block, next='END')
+  [line 5050] POP PIN A_N
+  [line 5059] END (nested block, next='END')
+  [line 5060] POP MACRO nand2b_1
+  [line 5062] PUSH MACRO nand4_1  depth=1
+  [line 5069] PUSH PIN VDD in nand4_1
+  [line 5078] END (nested block, next='END')
+  [line 5079] POP PIN VDD
+  [line 5080] PUSH PIN Y in nand4_1
+  [line 5112] END (nested block, next='END')
+  [line 5113] POP PIN Y
+  [line 5114] PUSH PIN VSS in nand4_1
+  [line 5121] END (nested block, next='END')
+  [line 5122] POP PIN VSS
+  [line 5123] PUSH PIN B in nand4_1
+  [line 5145] END (nested block, next='END')
+  [line 5146] POP PIN B
+  [line 5147] PUSH PIN C in nand4_1
+  [line 5169] END (nested block, next='END')
+  [line 5170] POP PIN C
+  [line 5171] PUSH PIN D in nand4_1
+  [line 5195] END (nested block, next='END')
+  [line 5196] POP PIN D
+  [line 5197] PUSH PIN A in nand4_1
+  [line 5221] END (nested block, next='END')
+  [line 5222] POP PIN A
+  [line 5223] SKIP PROPERTY deviceLevel
+  [line 5224] SKIP PROPERTY CatenaDesignType
+  [line 5225] POP MACRO nand4_1
+  [line 5227] PUSH MACRO nor2_1  depth=1
+  [line 5234] PUSH PIN Y in nor2_1
+  [line 5260] END (nested block, next='END')
+  [line 5261] POP PIN Y
+  [line 5262] PUSH PIN VSS in nor2_1
+  [line 5270] END (nested block, next='END')
+  [line 5271] POP PIN VSS
+  [line 5272] PUSH PIN A in nor2_1
+  [line 5302] END (nested block, next='END')
+  [line 5303] POP PIN A
+  [line 5304] PUSH PIN VDD in nor2_1
+  [line 5311] END (nested block, next='END')
+  [line 5312] POP PIN VDD
+  [line 5313] PUSH PIN B in nor2_1
+  [line 5344] END (nested block, next='END')
+  [line 5345] POP PIN B
+  [line 5353] END (nested block, next='END')
+  [line 5354] POP MACRO nor2_1
+  [line 5356] PUSH MACRO nor2_4  depth=1
+  [line 5363] PUSH PIN Y in nor2_4
+  [line 5410] END (nested block, next='END')
+  [line 5411] POP PIN Y
+  [line 5412] PUSH PIN VSS in nor2_4
+  [line 5423] END (nested block, next='END')
+  [line 5424] POP PIN VSS
+  [line 5425] PUSH PIN A in nor2_4
+  [line 5469] END (nested block, next='END')
+  [line 5470] POP PIN A
+  [line 5471] PUSH PIN VDD in nor2_4
+  [line 5481] END (nested block, next='END')
+  [line 5482] POP PIN VDD
+  [line 5483] PUSH PIN B in nor2_4
+  [line 5527] END (nested block, next='END')
+  [line 5528] POP PIN B
+  [line 5542] END (nested block, next='END')
+  [line 5543] POP MACRO nor2_4
+  [line 5545] PUSH MACRO nor2_8  depth=1
+  [line 5552] PUSH PIN Y in nor2_8
+  [line 5627] END (nested block, next='END')
+  [line 5628] POP PIN Y
+  [line 5629] PUSH PIN VSS in nor2_8
+  [line 5644] END (nested block, next='END')
+  [line 5645] POP PIN VSS
+  [line 5646] PUSH PIN A in nor2_8
+  [line 5708] END (nested block, next='END')
+  [line 5709] POP PIN A
+  [line 5710] PUSH PIN VDD in nor2_8
+  [line 5724] END (nested block, next='END')
+  [line 5725] POP PIN VDD
+  [line 5726] PUSH PIN B in nor2_8
+  [line 5787] END (nested block, next='END')
+  [line 5788] POP PIN B
+  [line 5810] END (nested block, next='END')
+  [line 5811] POP MACRO nor2_8
+  [line 5813] PUSH MACRO o21ai_1  depth=1
+  [line 5820] PUSH PIN VSS in o21ai_1
+  [line 5828] END (nested block, next='END')
+  [line 5829] POP PIN VSS
+  [line 5830] PUSH PIN A2 in o21ai_1
+  [line 5856] END (nested block, next='END')
+  [line 5857] POP PIN A2
+  [line 5858] PUSH PIN Y in o21ai_1
+  [line 5883] END (nested block, next='END')
+  [line 5884] POP PIN Y
+  [line 5885] PUSH PIN B1 in o21ai_1
+  [line 5906] END (nested block, next='END')
+  [line 5907] POP PIN B1
+  [line 5908] PUSH PIN A1 in o21ai_1
+  [line 5934] END (nested block, next='END')
+  [line 5935] POP PIN A1
+  [line 5936] PUSH PIN VDD in o21ai_1
+  [line 5944] END (nested block, next='END')
+  [line 5945] POP PIN VDD
+  [line 5958] END (nested block, next='END')
+  [line 5959] POP MACRO o21ai_1
+  [line 5961] PUSH MACRO o21ai_2  depth=1
+  [line 5968] PUSH PIN VSS in o21ai_2
+  [line 5978] END (nested block, next='END')
+  [line 5979] POP PIN VSS
+  [line 5980] PUSH PIN A2 in o21ai_2
+  [line 6010] END (nested block, next='END')
+  [line 6011] POP PIN A2
+  [line 6012] PUSH PIN Y in o21ai_2
+  [line 6048] END (nested block, next='END')
+  [line 6049] POP PIN Y
+  [line 6050] PUSH PIN B1 in o21ai_2
+  [line 6079] END (nested block, next='END')
+  [line 6080] POP PIN B1
+  [line 6081] PUSH PIN A1 in o21ai_2
+  [line 6113] END (nested block, next='END')
+  [line 6114] POP PIN A1
+  [line 6115] PUSH PIN VDD in o21ai_2
+  [line 6125] END (nested block, next='END')
+  [line 6126] POP PIN VDD
+  [line 6145] END (nested block, next='END')
+  [line 6146] POP MACRO o21ai_2
+  [line 6148] PUSH MACRO o21ai_4  depth=1
+  [line 6155] PUSH PIN VSS in o21ai_4
+  [line 6169] END (nested block, next='END')
+  [line 6170] POP PIN VSS
+  [line 6171] PUSH PIN B1 in o21ai_4
+  [line 6213] END (nested block, next='END')
+  [line 6214] POP PIN B1
+  [line 6215] PUSH PIN A2 in o21ai_4
+  [line 6260] END (nested block, next='END')
+  [line 6261] POP PIN A2
+  [line 6262] PUSH PIN VDD in o21ai_4
+  [line 6275] END (nested block, next='END')
+  [line 6276] POP PIN VDD
+  [line 6277] PUSH PIN A1 in o21ai_4
+  [line 6322] END (nested block, next='END')
+  [line 6323] POP PIN A1
+  [line 6324] PUSH PIN Y in o21ai_4
+  [line 6380] END (nested block, next='END')
+  [line 6381] POP PIN Y
+  [line 6410] END (nested block, next='END')
+  [line 6411] POP MACRO o21ai_4
+  [line 6413] PUSH MACRO o21ai_8  depth=1
+  [line 6420] PUSH PIN VSS in o21ai_8
+  [line 6442] END (nested block, next='END')
+  [line 6443] POP PIN VSS
+  [line 6444] PUSH PIN B1 in o21ai_8
+  [line 6507] END (nested block, next='END')
+  [line 6508] POP PIN B1
+  [line 6509] PUSH PIN Y in o21ai_8
+  [line 6604] END (nested block, next='END')
+  [line 6605] POP PIN Y
+  [line 6606] PUSH PIN A1 in o21ai_8
+  [line 6676] END (nested block, next='END')
+  [line 6677] POP PIN A1
+  [line 6678] PUSH PIN A2 in o21ai_8
+  [line 6748] END (nested block, next='END')
+  [line 6749] POP PIN A2
+  [line 6750] PUSH PIN VDD in o21ai_8
+  [line 6769] END (nested block, next='END')
+  [line 6770] POP PIN VDD
+  [line 6819] END (nested block, next='END')
+  [line 6820] POP MACRO o21ai_8
+  [line 6822] PUSH MACRO xnor2_1  depth=1
+  [line 6829] PUSH PIN VSS in xnor2_1
+  [line 6837] END (nested block, next='END')
+  [line 6838] POP PIN VSS
+  [line 6839] PUSH PIN A in xnor2_1
+  [line 6866] END (nested block, next='END')
+  [line 6867] POP PIN A
+  [line 6868] PUSH PIN Y in xnor2_1
+  [line 6897] END (nested block, next='END')
+  [line 6898] POP PIN Y
+  [line 6899] PUSH PIN VDD in xnor2_1
+  [line 6908] END (nested block, next='END')
+  [line 6909] POP PIN VDD
+  [line 6910] PUSH PIN B in xnor2_1
+  [line 6949] END (nested block, next='END')
+  [line 6950] POP PIN B
+  [line 6981] END (nested block, next='END')
+  [line 6982] POP MACRO xnor2_1
+  [line 6984] PUSH MACRO xor2_1  depth=1
+  [line 6991] PUSH PIN VDD in xor2_1
+  [line 7001] END (nested block, next='END')
+  [line 7002] POP PIN VDD
+  [line 7003] PUSH PIN X in xor2_1
+  [line 7030] END (nested block, next='END')
+  [line 7031] POP PIN X
+  [line 7032] PUSH PIN VSS in xor2_1
+  [line 7042] END (nested block, next='END')
+  [line 7043] POP PIN VSS
+  [line 7044] PUSH PIN B in xor2_1
+  [line 7082] END (nested block, next='END')
+  [line 7083] POP PIN B
+  [line 7084] PUSH PIN A in xor2_1
+  [line 7111] END (nested block, next='END')
+  [line 7112] POP PIN A
+  [line 7154] END (nested block, next='END')
+  [line 7155] POP MACRO xor2_1
+  [line 7157] END LIBRARY

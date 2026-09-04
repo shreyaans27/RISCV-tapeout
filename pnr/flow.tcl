@@ -208,7 +208,7 @@ saveDesign checkpoint_final_v9.enc
 # STEP 11 — EXPORT
 # ============================================================
 
-saveNetlist core_top_pnr_v9.v
+saveNetlist -phys core_top_pnr_v9.v
 
 defOut core_top_pnr_v9.def
 
@@ -218,16 +218,13 @@ streamOut core_top_pnr_v9.gds \
   -mapFile /home/home3/team2chips2026/qrc/tsmc18_qrc.layermap \
   -libName DesignLib -units 1000 -mode ALL
 
-  streamOut core_top_pnr_small.gds \
-    -mapFile /home/home3/team2chips2026/qrc/tsmc18_qrc.layermap \
-    -libName DesignLib -units 1000 -mode ALL
 
 # ============================================================
 # STEP 12 — BACKWARD RENAME FOR VIRTUOSO (run in terminal)
 # ============================================================
-# python3 /home/home3/team2chips2026/qrc/rename_layers.py --backward \
-#   core_top_pnr_small_routed.def \
-#   /home/home3/team2chips2026/TSMC_180_work/core_top_pnr_small_virtuoso.def
+python3 /home/home3/team2chips2026/qrc/rename_layers.py --backward \
+  core_top_pnr_v14_routed.def \
+  /home/home3/team2chips2026/TSMC_180_work/core_top_pnr_v14_virtuoso.def
 #
 # Verify:
 # grep "^NETS" /home/home3/team2chips2026/TSMC_180_work/core_top_pnr_v13_virtuoso.def

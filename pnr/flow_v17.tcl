@@ -19,7 +19,7 @@ suppressMessage ENCEXT-2799
 
 setMessageLimit 10000 
 
-set init_lef_file {lef/tech_v2_small_M6_qrc.lef lef/team2stdcellsV4_qrc.lef}
+set init_lef_file {lef/tech_v2_qrc.lef lef/team2stdcellsV5_qrc.lef}
 set init_mmmc_file mmmc.tcl
 set init_verilog core_top_mapped.v
 set init_top_cell core_top
@@ -44,71 +44,65 @@ setPinAssignMode -pinEditInBatch true
 
 # North — ROM interface (METAL_2)
 editPin -side N -layer METAL_2 \
-   -pin {rom_dout[31] rom_dout[30] rom_dout[29] rom_dout[28] \
-         rom_dout[27] rom_dout[26] rom_dout[25] rom_dout[24] \
-         rom_dout[23] rom_dout[22] rom_dout[21] rom_dout[20] \
-         rom_dout[19] rom_dout[18] rom_dout[17] rom_dout[16] \
-         rom_dout[15] rom_dout[14] rom_dout[13] rom_dout[12] \
-         rom_dout[11] rom_dout[10] rom_dout[9]  rom_dout[8] \
-         rom_dout[7]  rom_dout[6]  rom_dout[5]  rom_dout[4] \
-         rom_dout[3]  rom_dout[2]  rom_dout[1]  rom_dout[0] \
-         rom_wl_addr[0] rom_wl_addr[1] rom_wl_addr[2] rom_wl_addr[3] \
-         rom_wl_addr[4] rom_wl_addr[5] rom_wl_addr[6] rom_wl_addr[7] \
-         rom_col_in[0] rom_col_in[1] rom_col_in[2] rom_col_in[3] \
-         rom_wlen rom_preen rom_saen} \
-   -fixedPin 1 -spreadType CENTER \
-   -pinWidth 0.5 -pinDepth 1.5 -spacing 1 -unit MICRON
+  -pin {rom_dout[31] rom_dout[30] rom_dout[29] rom_dout[28] \
+        rom_dout[27] rom_dout[26] rom_dout[25] rom_dout[24] \
+        rom_dout[23] rom_dout[22] rom_dout[21] rom_dout[20] \
+        rom_dout[19] rom_dout[18] rom_dout[17] rom_dout[16] \
+        rom_dout[15] rom_dout[14] rom_dout[13] rom_dout[12] \
+        rom_dout[11] rom_dout[10] rom_dout[9]  rom_dout[8] \
+        rom_dout[7]  rom_dout[6]  rom_dout[5]  rom_dout[4] \
+        rom_dout[3]  rom_dout[2]  rom_dout[1]  rom_dout[0] \
+        rom_wl_addr[0] rom_wl_addr[1] rom_wl_addr[2] rom_wl_addr[3] \
+        rom_wl_addr[4] rom_wl_addr[5] rom_wl_addr[6] rom_wl_addr[7] \
+        rom_col_in[0] rom_col_in[1] rom_col_in[2] rom_col_in[3] \
+        rom_wlen rom_preen rom_saen} \
+  -fixedPin 1 -spreadType CENTER \
+  -pinWidth 0.5 -pinDepth 1.5 -spacing 0.5 -unit MICRON
 
 # West — Debug (METAL_3)
 editPin -side W -layer METAL_3 \
-   -pin {debug_pc[0]  debug_pc[1]  debug_pc[2]  debug_pc[3] \
-         debug_pc[4]  debug_pc[5]  debug_pc[6]  debug_pc[7] \
-         debug_pc[8]  debug_pc[9]  debug_pc[10] debug_pc[11] \
-         debug_pc[12] debug_pc[13] debug_pc[14] debug_pc[15] \
-         debug_pc[16] debug_pc[17] debug_pc[18] debug_pc[19] \
-         debug_pc[20] debug_pc[21] debug_pc[22] debug_pc[23] \
-         debug_pc[24] debug_pc[25] debug_pc[26] debug_pc[27] \
-         debug_pc[28] debug_pc[29] debug_pc[30] debug_pc[31] \
-         debug_resp_valid} \
-   -fixedPin 1 -spreadType CENTER \
-   -pinWidth 0.5 -pinDepth 1.5 -spacing 3 -unit MICRON
+  -pin {debug_pc[0]  debug_pc[1]  debug_pc[2]  debug_pc[3] \
+        debug_pc[4]  debug_pc[5]  debug_pc[6]  debug_pc[7] \
+        debug_pc[8]  debug_pc[9]  debug_pc[10] debug_pc[11] \
+        debug_pc[12] debug_pc[13] debug_pc[14] debug_pc[15] \
+        debug_pc[16] debug_pc[17] debug_pc[18] debug_pc[19] \
+        debug_pc[20] debug_pc[21] debug_pc[22] debug_pc[23] \
+        debug_pc[24] debug_pc[25] debug_pc[26] debug_pc[27] \
+        debug_pc[28] debug_pc[29] debug_pc[30] debug_pc[31] \
+        debug_resp_valid} \
+  -fixedPin 1 -spreadType CENTER \
+  -pinWidth 0.5 -pinDepth 1.5 -spacing 0.5 -unit MICRON
 
 # South — Control & JTAG (METAL_3)
-editPin -side S -layer METAL_3 \
-   -pin {pad_clk rst_n jtag_tck jtag_tms jtag_tdi jtag_tdo} \
-   -fixedPin 1 -spreadType CENTER \
-   -pinWidth 1.0 -pinDepth 1.5 -spacing 5 -unit MICRON
+editPin -side S -layer METAL_4 \
+  -pin {pad_clk rst_n jtag_tck jtag_tms jtag_tdi jtag_tdo} \
+  -fixedPin 1 -spreadType CENTER \
+  -pinWidth 1.0 -pinDepth 1.5 -spacing 0.5 -unit MICRON
 
 # East — SRAM interface (METAL_3)
-editPin -edge 2 -layer METAL_5 \
-   -pin {sram_addr[1] sram_addr[3] sram_addr[5] sram_addr[7] \
-         sram_den sram_ren \
-         sram_col_addr[1] \
-         sram_dout[31] sram_dout[30] sram_dout[29] sram_dout[28] \
-         sram_dout[27] sram_dout[26] sram_dout[25] sram_dout[24] \
-         sram_dout[23] sram_dout[22] sram_dout[21] sram_dout[20] \
-         sram_dout[19] sram_dout[18] sram_dout[17] sram_dout[16] \
-         sram_dout[15] sram_dout[14] sram_dout[13] sram_dout[12] \
-         sram_dout[11] sram_dout[10] sram_dout[9]  sram_dout[8] \
-         sram_dout[7]  sram_dout[6]  sram_dout[5]  sram_dout[4] \
-         sram_dout[3]  sram_dout[2]  sram_dout[1]  sram_dout[0]} \
-   -fixedPin 1 -spreadType START -offsetStart 753 -offsetEnd 25 \
-   -pinWidth 0.5 -pinDepth 1.5 -spacing 6.0 -unit MICRON
-
 editPin -edge 2 -layer METAL_3 \
-   -pin {sram_addr[0] sram_addr[2] sram_addr[4] sram_addr[6] \
-         sram_en sram_prechg sram_wen \
-         sram_col_addr[0] sram_col_addr[2] \
-         sram_din[15] sram_din[14] sram_din[13] sram_din[12] \
-         sram_din[11] sram_din[10] sram_din[9]  sram_din[8] \
-         sram_din[7]  sram_din[6]  sram_din[5]  sram_din[4] \
-         sram_din[3]  sram_din[2]  sram_din[1]  sram_din[0] \
-         sram_din[31] sram_din[30] sram_din[29] sram_din[28] \
-         sram_din[27] sram_din[26] sram_din[25] sram_din[24] \
-         sram_din[23] sram_din[22] sram_din[21] sram_din[20] \
-         sram_din[19] sram_din[18] sram_din[17] sram_din[16]} \
-   -fixedPin 1 -spreadType START -offsetStart 750 -offsetEnd 25 \
-   -pinWidth 0.5 -pinDepth 1.5 -spacing 6.0 -unit MICRON
+  -pin {sram_addr[0] sram_addr[1] sram_addr[2] sram_addr[3] \
+        sram_addr[4] sram_addr[5] sram_addr[6] sram_addr[7] \
+        sram_en sram_den sram_prechg sram_wen sram_ren \
+        sram_col_addr[0] sram_col_addr[1] sram_col_addr[2] \
+        sram_din[15] sram_dout[31] sram_din[14] sram_dout[30] \
+        sram_din[13] sram_dout[29] sram_din[12] sram_dout[28] \
+        sram_din[11] sram_dout[27] sram_din[10] sram_dout[26] \
+        sram_din[9]  sram_dout[25] sram_din[8]  sram_dout[24] \
+        sram_din[7]  sram_dout[23] sram_din[6]  sram_dout[22] \
+        sram_din[5]  sram_dout[21] sram_din[4]  sram_dout[20] \
+        sram_din[3]  sram_dout[19] sram_din[2]  sram_dout[18] \
+        sram_din[1]  sram_dout[17] sram_din[0]  sram_dout[16] \
+        sram_din[31] sram_dout[15] sram_din[30] sram_dout[14] \
+        sram_din[29] sram_dout[13] sram_din[28] sram_dout[12] \
+        sram_din[27] sram_dout[11] sram_din[26] sram_dout[10] \
+        sram_din[25] sram_dout[9]  sram_din[24] sram_dout[8] \
+        sram_din[23] sram_dout[7]  sram_din[22] sram_dout[6] \
+        sram_din[21] sram_dout[5]  sram_din[20] sram_dout[4] \
+        sram_din[19] sram_dout[3]  sram_din[18] sram_dout[2] \
+        sram_din[17] sram_dout[1]  sram_din[16] sram_dout[0]} \
+  -fixedPin 1 -spreadType START -offsetStart 850 -offsetEnd 25 \
+  -pinWidth 0.5 -pinDepth 1.5 -spacing 0.5 -unit MICRON
 
 setPinAssignMode -pinEditInBatch false
 
@@ -139,7 +133,6 @@ saveDesign checkpoint_after_power_v17.enc
 # ============================================================
 # STEP 5 — PLACEMENT
 # ============================================================
-
 place_design
 saveDesign checkpoint_after_place_v17.enc
 
@@ -158,6 +151,8 @@ set_ccopt_property target_max_trans 0.75
 set_ccopt_property target_skew 0.25
 setMultiCpuUsage -localCpu 8
 clock_opt_design
+
+saveDesign checkpoint_after_cts_v17.enc
 
 timeDesign -postCTS
 timeDesign -postCTS -hold
@@ -181,6 +176,9 @@ set_clock_uncertainty 0 [all_clocks]
 # ============================================================
 
 setNanoRouteMode -route_detail_use_multi_cut_via_effort high
+setNanoRouteMode -routeAntennaCellName "diode_2"
+setNanoRouteMode -routeInsertAntennaDiode true
+setNanoRouteMode -drouteFixAntenna true
 routeDesign
 saveDesign checkpoint_after_route_v17.enc
 
@@ -208,11 +206,14 @@ saveDesign checkpoint_final_v17.enc
 # STEP 11 — EXPORT
 # ============================================================
 
+
+
+
 # saveNetlist -phys core_top_pnr_v17.v
 
-# defOut core_top_pnr_v17.def
+defOut core_top_pnr_v17.def
 
-# defOut -floorplan -routing -netlist core_top_pnr_v17_routed.def
+defOut -floorplan -routing -netlist core_top_pnr_v17_routed.def
 
 # streamOut core_top_pnr_v17.gds \
 #   -mapFile /home/home3/team2chips2026/qrc/tsmc18_qrc.layermap \
@@ -220,11 +221,15 @@ saveDesign checkpoint_final_v17.enc
 
 
 # ============================================================
-# STEP 12 — BACKWARD RENAME FOR VIRTUOSO (run in terminal)
+# STEP 12 — BACKWARD RENAME FOR VIRTUOSObuf_1 (run in terminal)
 # ============================================================
-# python3 /home/home3/team2chips2026/qrc/rename_layers.py --backward \
-#   core_top_pnr_v14_routed.def \
-#   /home/home3/team2chips2026/TSMC_180_work/core_top_pnr_v14_virtuoso.def
+python3 /home/home3/team2chips2026/qrc/rename_layers.py --backward \
+  core_top_pnr_v34_fill_routed.def \
+  /home/home3/team2chips2026/TSMC_180_work/core_top_pnr_v34_fill_routed_virtuoso.def	
+
+  python3 /home/home3/team2chips2026/qrc/rename_layers.py --backward \
+  core_top_pnr_v67_antfill_routed.def \
+  /home/home3/team2chips2026/TSMC_180_work/core_top_pnr_v67_antfill_routed_virtuoso.def
 #
 # Verify:
 # grep "^NETS" /home/home3/team2chips2026/TSMC_180_work/core_top_pnr_v13_virtuoso.def
